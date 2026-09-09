@@ -288,6 +288,7 @@ awk 'BEGIN {print "开始处理"} {print $1} END {print "处理结束"}' access.
 找出 `access.txt` 中响应字节数（最后一列）最大的那一条请求。
 
 ```bash
+#!/bin/bash
 awk \
 '
 BEGIN {
@@ -310,10 +311,18 @@ END {
 ### 练习 4-3
 
 把 `employees.txt` 中所有 `New York` 替换成 `NYC`，并且只显示 `Engineering` 部门的员工。
+``` bash
+#!/bin/bash
+sed -i 's/New York/NYC/' employees.txt
+awk -F: '$3 == "Engineering" && $NF == "NYC" {print $2} ' employees.txt 
+```
 
 ### 练习 4-4（日志排障实战）
 
 假设线上报错，请用一条命令找出 `access.txt` 中所有状态码为 `500` 或 `403` 的请求，并显示它们的 IP 和请求路径。
+``` bash
+awk '$(NF - 1) == 500 || $(NF - 1) == 403  {print $6, $7, $8, $(NF - 1)}' access.txt
+```
 
 ***
 
