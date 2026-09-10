@@ -47,7 +47,7 @@ grep [选项] "要查找的内容" 文件名
 | `-o` | 只输出匹配的部分 | `grep -o "https://[^ ]*" samples.txt` | <br />              |
 | `-w` | 精确匹配整个单词 | `grep -w "GET" access.txt`            | <br />              |
 | `-r` | 递归搜索目录   | `grep -r "error" /var/log/`           | <br />              |
-| `-E` | 支持扩展正则   | \`grep -E "apple                      | banana" sales.txt\` |
+| `-E` | 支持扩展正则   | `grep -E "apple`                      | `banana" sales.txt\` |
 
 ## 3. 基础正则元字符（grep 的灵魂）
 
