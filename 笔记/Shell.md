@@ -9,11 +9,15 @@ fi
 ```
 
 ``` bash
-
+for [条件]; do
+    循环体
+done
 ```
 
 ``` bash
-
+while [条件]; do
+    循环体
+done
 ```
 
 ## 条件判断写法
