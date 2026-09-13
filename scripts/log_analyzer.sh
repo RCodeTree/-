@@ -12,24 +12,26 @@ log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m" >&2; }
 
 # 2. 各分析函数（你来补全）
 total_requests() {
-	wc -l
+	count=$(wc -l)
+    echo "${count}"
 }
 
 unique_ips() {
-    awk '{print $1}' access.log | sort -n | uniq -u | wc -l
+    count=$(awk '{print $1}' access.log | sort -n | uniq -u | wc -l)
+    echo "${count}"
 }
 
 top_ips() {
     awk '{print $1}' access.log | sort -n | uniq -c | sort -nr | head -5
 }
 
-status_codes() {
+# status_codes() {
     
-}
+# }
 
-http_methods() {
+# http_methods() {
     
-}
+# }
 
 # 3. 主流程
 log_info "开始分析: $LOG_FILE"
