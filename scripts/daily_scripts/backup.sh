@@ -23,18 +23,17 @@ trap 'exit 130' INT         # Ctrl+C → 退出码 130 = 128 + 2(SIGINT)
 trap 'exit 143' TERM        # kill   → 退出码 143 = 128 + 15(SIGTERM)
 
 
-
-# 源目录、备份目录
-source_dir=$1
-target_dir=$2
-
 # 参数校验
 if [ $# -ne 2 ]; then
     log_error "错误：参数数量错误，需要提供源目录和备份目录!" 
     log_error "用法：./backup.sh <源目录> <备份目录>" 
     log_error "示例：./backup.sh /var/html /backupdir" 
-    exit 1
+    exit 2
 fi
+
+# 源目录、备份目录
+source_dir=$1
+target_dir=$2
 
 # 校验源目录是否存在
 log_info "正在校验源目录有效性" 
