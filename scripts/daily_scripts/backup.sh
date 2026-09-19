@@ -12,7 +12,6 @@ TMPFILE=""
 
 # 清理函数
 clean_up() {
-	log_error "错误：数据备份失败，正在清理备份失败数据....!"
      if [[ -n "$TMPFILE" && -f "$TMPFILE" ]]; then
         rm -f "$TMPFILE"
         log_warn "已清理未完成的临时文件: $TMPFILE"
@@ -28,6 +27,14 @@ trap 'exit 143' TERM        # kill   → 退出码 143 = 128 + 15(SIGTERM)
 # 源目录、备份目录
 source_dir=$1
 target_dir=$2
+
+# 参数校验
+if [ $# -ne 2 ]; then
+    log_error "错误：参数数量错误，需要提供源目录和备份目录!" 
+    log_error "用法：./backup.sh <源目录> <备份目录>" 
+    log_error "示例：./backup.sh /var/html /backupdir" 
+    exit 1
+fi
 
 # 校验源目录是否存在
 log_info "正在校验源目录有效性" 
@@ -49,7 +56,7 @@ log_info "正在校验备份目录有效性"
 if [[ ! -d "$target_dir"  ]]; then
 	log_error "错误：${target_dir} 备份目录不存在或 ${target_dir} 不是一个目录!" 
     log_warn "警告：备份目录 ${target_dir} 正在创建......" 
-    if ! mkdir -p $target_dir; then
+    if ! mkdir -p "$target_dir"; then
     	log_error "错误：备份目录创建失败!" 
     	exit 1
     fi
@@ -60,7 +67,7 @@ time=$(date "+%Y%m%d_%H%M%S") # 备份日期时间
 base_name=$(basename "$source_dir")
 
 FINAL_FILE="$target_dir/${base_name}_${time}.tar.gz" # 最终备份文件路径
-TEMPFILE=$(mktemp "${target_dir}/.backup_${base_name}.XXXXXX")
+TMPFILE=$(mktemp "${target_dir}/.backup_${base_name}.XXXXXX")
 
 if ! tar -czf "$TMPFILE" -C "$(dirname "$source_dir")" "$base_name"; then
     log_error "打包失败"
@@ -76,7 +83,7 @@ fi
 mv "$TMPFILE" "$FINAL_FILE"
 TMPFILE=""
 
-log_info "备份完成，路径：'$FINAL_FILE'，大小：$(du -h FINAL_FILE | awk '{print $1}')"
+log_info "备份完成，路径：'$FINAL_FILE'，大小：$(du -h "$FINAL_FILE" | awk '{print $1}')"
             
 
 
