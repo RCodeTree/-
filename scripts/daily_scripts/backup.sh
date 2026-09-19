@@ -51,14 +51,11 @@ fi
 time=$(date "+%Y%m%d_%H%M%S") # 备份日期时间
 base_name=$(basename "$source_dir")
 
+FINAL_FILE="$target_dir/${base_name}_${time}.tar.gz" # 最终备份文件路径
+TEMPFILE=$(mktemp "${target_dir}/.backup_${base_name}.XXXXXX")
+
 trap clean_up EXIT INT TERM
-if tar -czf  "$source_dir/*" "$target_dir/${base_name}.tar.gz"; then # 备份文件并校验
-    log_info "正在备份文件......"
-	# mv /tmp/backupdir/"${base_name}.tar.gz" /backupdir/"${base_name}_${time}.tar.gz"
-else
-    log_error "错误：打包备份文件失败！"
-    exit 1
-fi
+if ! 
 
 if [[ ! -s "$target_dir/${base_name}.tar.gz" ]]  || ! tar -tzf "$target_dir/${base_name}.tar.gz" >/dev/null 2>&1; then
     		log_error "错误：备份文件为空或备份文件损坏，请自行检查!"
