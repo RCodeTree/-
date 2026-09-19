@@ -8,12 +8,20 @@ log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m"; }
 log_info() { echo -e "\033[32m[INFO] $(date '+%F %T') $*\033[0m"; }
 log_warn() { echo -e "\033[33m[WARN] $(date '+%F %T') $*\033[0m"; }
 
+TMPFILE=""
+
 # 清理函数
 clean_up() {
 	log_error "错误：数据备份失败，正在清理备份失败数据....!"
-    # rm -rf /tmp/backupdir/* # TODO
-    exit 1
+     if [[ -n "$TMPFILE" && -f "$TMPFILE" ]]; then
+        rm -f "$TMPFILE"
+        log_warn "已清理未完成的临时文件: $TMPFILE"
+     fi
 }
+
+trap clean_up EXIT          # 任何退出都走清理（成功时 TMPFILE 已清空，不误删）
+trap 'exit 130' INT         # Ctrl+C → 退出码 130 = 128 + 2(SIGINT)
+trap 'exit 143' TERM        # kill   → 退出码 143 = 128 + 15(SIGTERM)
 
 
 
@@ -54,16 +62,21 @@ base_name=$(basename "$source_dir")
 FINAL_FILE="$target_dir/${base_name}_${time}.tar.gz" # 最终备份文件路径
 TEMPFILE=$(mktemp "${target_dir}/.backup_${base_name}.XXXXXX")
 
-trap clean_up EXIT INT TERM
-if ! 
+if ! tar -czf "$TMPFILE" -C "$(dirname "$source_dir")" "$base_name"; then
+    log_error "打包失败"
+    exit 1
+fi
 
-if [[ ! -s "$target_dir/${base_name}.tar.gz" ]]  || ! tar -tzf "$target_dir/${base_name}.tar.gz" >/dev/null 2>&1; then
+if [[ ! -s "$TMPFILE" ]]  || ! tar -tzf "$TMPFILE" >/dev/null 2>&1; then
     		log_error "错误：备份文件为空或备份文件损坏，请自行检查!"
-            du -h /tmp/backupdir/"${base_name}.tar.gz"
             exit 1
 fi
 
-log_info "备份完成，路径：'$target_dir/${base_name}_${time}.tat.gz'，大小：$(du -h backup.sh | awk '{print $1}')"
+# 校验通过，原子改名
+mv "$TMPFILE" "$FINAL_FILE"
+TMPFILE=""
+
+log_info "备份完成，路径：'$FINAL_FILE'，大小：$(du -h FINAL_FILE | awk '{print $1}')"
             
 
 
