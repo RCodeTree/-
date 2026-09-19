@@ -60,13 +60,13 @@ else
     exit 1
 fi
 
-if [[ ! -s /tmp/backupdir/"${base_name}.tar.gz" ]]  || ! tar -tzf /tmp/backupdir/"${base_name}.tar.gz" >/dev/null 2>&1; then
+if [[ ! -s "$target_dir/${base_name}.tar.gz" ]]  || ! tar -tzf "$target_dir/${base_name}.tar.gz" >/dev/null 2>&1; then
     		log_error "错误：备份文件为空或备份文件损坏，请自行检查!"
             du -h /tmp/backupdir/"${base_name}.tar.gz"
             exit 1
 fi
 
-log_info "备份完成，路径：/backupdir/'${base_name}_${time}.tat.gz'，大小：$(du -h backup.sh | awk '{print $1}')"
+log_info "备份完成，路径：'$target_dir/${base_name}_${time}.tat.gz'，大小：$(du -h backup.sh | awk '{print $1}')"
             
 
 
