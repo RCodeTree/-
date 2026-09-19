@@ -28,6 +28,7 @@ if [[ ! -d "$source_dir"  ]]; then
 	log_error "用法：./backup.sh <源目录> <备份目录>" 
     log_error "示例：./backup.sh /var/html /backupdir" 
     exit 1
+fi
 
 # 校验源目录是否可读可写
 if [[ ! -r "$source_dir" || ! -x "$source_dir"  ]]; then
@@ -51,7 +52,7 @@ time=$(date "+%Y%m%d_%H%M%S") # 备份日期时间
 base_name=$(basename "$source_dir")
 
 trap clean_up EXIT INT TERM
-if tar -czf  /tmp/demo/* /tmp/backupdir/"${base_name}.tar.gz"; then # 备份文件并校验
+if tar -czf  "$source_dir/*" "$target_dir/${base_name}.tar.gz"; then # 备份文件并校验
     log_info "正在备份文件......"
 	# mv /tmp/backupdir/"${base_name}.tar.gz" /backupdir/"${base_name}_${time}.tar.gz"
 else
