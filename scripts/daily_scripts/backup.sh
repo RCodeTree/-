@@ -39,7 +39,7 @@ fi
 log_info "正在校验备份目录有效性" 
 if [[ ! -d "$target_dir"  ]]; then
 	log_error "错误：${target_dir} 备份目录不存在或 ${target_dir} 不是一个目录!" 
-    log_warn "警告：备份目录 ${target_dir} 正在创建目录......" 
+    log_warn "警告：备份目录 ${target_dir} 正在创建......" 
     if ! mkdir -p $target_dir; then
     	log_error "错误：备份目录创建失败!" 
     	exit 1
@@ -53,7 +53,7 @@ base_name=$(basename "$source_dir")
 trap clean_up EXIT INT TERM
 if tar -czf  /tmp/demo/* /tmp/backupdir/"${base_name}.tar.gz"; then # 备份文件并校验
     log_info "正在备份文件......"
-	# mv /tmp/backupdir/"${base_name}.tar.gz" /backupdir/"${base_name}_${time}.tat.gz"
+	# mv /tmp/backupdir/"${base_name}.tar.gz" /backupdir/"${base_name}_${time}.tar.gz"
 else
     log_error "错误：打包备份文件失败！"
     exit 1
