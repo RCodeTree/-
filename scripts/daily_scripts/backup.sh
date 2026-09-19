@@ -11,7 +11,7 @@ log_warn() { echo -e "\033[33m[WARN] $(date '+%F %T') $*\033[0m"; }
 # 清理函数
 clean_up() {
 	log_error "错误：数据备份失败，正在清理备份失败数据....!"
-    rm -rf /tmp/backupdir/*
+    rm -rf /tmp/backupdir/* # TODO
     exit 1
 }
 
@@ -49,7 +49,7 @@ time=$(date "+%Y-%m-%d_%H:%M:%S") # 备份日期时间
 basename="backupdir"
 
 if tar -czf  /tmp/demo/* /tmp/backupdir/"${basename}.tar.gz"; then # 备份文件并校验
-    trap clean_up EXIT INT TREM
+    trap clean_up EXIT INT TERM
 else
 	log_info "正在备份文件......"
 	mv /tmp/backupdir/"${basename}.tar.gz" /backupdir/"${basename}_${time}.tat.gz"
