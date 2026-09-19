@@ -23,7 +23,7 @@ target_dir=$2
 
 # 校验目录是否存在
 log_info "正在校验目录有效性" 
-if [[ ! -d $source_dir  ]]; then
+if [[ ! -d "$source_dir"  ]]; then
 	log_error "错误：${source_dir} 源目录不存在或 ${source_dir} 不是一个目录!" 
 	log_error "用法：./backup.sh <源目录> <备份目录>" 
     log_error "示例：./backup.sh /var/html /backupdir" 
