@@ -3,6 +3,9 @@
 # 使用 set 防止脚本错误运行下去
 set -euo pipefail
 
+# 日志文件
+log_file="/var/log/backup.log"
+
 # 日志函数
 log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
 log_info() { echo -e "\033[32m[INFO] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
@@ -35,12 +38,12 @@ while getopts ":k:h" opt
 do
 	case "$opt" in
     	k)
-        	if [[ $OPTARG =~ ^[0-9]+$ ]]; then
-            	log_error "错误：${$OPTARG}不为正整数！"
+        	if [[ $OPTARG =~ ^[0-9]+$ ]] && [[ $OPTARG -gt 0 ]]; then
+            	KEEP=$OPTARG
+            else 
+            	log_error "错误：$OPTARG 不为正整数！"
                 usage
                 exit 1
-            else 
-            	$KEEP=$OPTARG
             fi
             ;;
          h) 
@@ -50,11 +53,11 @@ do
         \?)
         	log_error "错误：非法参数！"
             usage
-            exit 1
+            exit 2
             ;;
     esac
 done
-shift $((OPTIND - 2)) # 删除已经提取的参数，保留剩余参数(即普通参数)
+shift $((OPTIND - 1)) # 删除已经提取的参数，保留剩余参数(即普通参数)
 
 # 参数校验
 if [ $# -ne 2 ]; then
@@ -69,9 +72,6 @@ target_dir=$2
 
 # 磁盘空间阈值
 disk_max=90
-
-# 日志文件
-log_file="/var/log/backup.log"
 
 # 校验日志文件是否存在
 log_info "正在校验日志文件有效性" 
@@ -113,7 +113,11 @@ fi
 
 
 # 校验备份目录所在的磁盘空间
-disk_used=$(df -h | awk 'NR>1 && $6 == "/" {print +$5}')
+disk_used=$(df --output=pcent "$target_dir" | tail -1 | awk '{print +$1}')
+if ![[ "$disk_used" =~ ^[0-9]+$ ]]; then
+    log_error "错误：无法解析备份盘使用率: $target_dir"
+    exit 1
+fi
 if [[ $disk_used -gt $disk_max ]]; then
 	log_error "错误：备份盘使用率已达 ${disk_used}%，空间不足，中止备份"
     exit 1
@@ -144,24 +148,19 @@ TMPFILE=""
 log_info "备份完成，路径：'$FINAL_FILE'，大小：$(du -h "$FINAL_FILE" | awk '{print $1}')"
 
 # 清理旧备份文件
-if [[ $KEEP == "" ]]; then
-	log_info "未传递最近保存时间参数，不进行旧备份的清理"
+if [ -z "$KEEP" ]; then
+    log_info "未指定 -k，不清理旧备份"
     exit 0
 fi
 
-ls -l "$target_dir" | \
-sort -M | \
-awk 'NR > 1' | \
-head -+$KEEP | \
-awk '{print $NF}' | \
-while read -r line;
-do
-	if [[ "$line" | grep -E "^'$base_name'_*.tar.gz$" != "" ]]; then
-    	log_info "正在清理旧备份文件......"
-    	rm -f "$target_dir" + "$line"
-        log_info "已清理旧备份:" "$target_dir" "$line"
-    fi
-done
+find "$target_dir" -maxdepth 1 -type f -name "${base_name}_*.tar.gz" -printf '%T@ %p\n' \
+    | sort -rn \
+    | tail -n +$((KEEP + 1)) \
+    | cut -d' ' -f2- \
+    | while IFS= read -r old_file; do
+          rm -f "$old_file"
+          log_info "已清理旧备份: $old_file"
+      done
             
 
 
