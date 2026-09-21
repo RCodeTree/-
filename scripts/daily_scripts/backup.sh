@@ -7,7 +7,7 @@ set -euo pipefail
 log_file="/var/log/backup.log"
 
 # 日志函数
-log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
+log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; } # tee -a，tee 在文件不存在时会自动创建它
 log_info() { echo -e "\033[32m[INFO] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
 log_warn() { echo -e "\033[33m[WARN] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
 
@@ -25,7 +25,7 @@ clean_up() {
 # 提示函数
 usage() {
 	# 用法: ./backup.sh [-k 保留份数] <源目录> <备份目录>
-    echo -e "\033[32m用法: ./backup.sh [-k 保留份数(份数为正整数)] <源目录> <备份目录>\033[0m"
+    echo -e "\033[32m用法: ${0} [-k 保留份数(份数为正整数)] <源目录> <备份目录>\033[0m"
 }
 
 trap clean_up EXIT          # 任何退出都走清理（成功时 TMPFILE 已清空，不误删）
@@ -73,18 +73,6 @@ target_dir=$2
 # 磁盘空间阈值
 disk_max=90
 
-# 校验日志文件是否存在
-log_info "正在校验日志文件有效性" 
-if [[ ! -f "$log_file"  ]]; then
-	log_error "错误：${log_file} 源目录不存在或 ${log_file} 不是一个目录!" 
-	log_warn "警告：备份目录 ${log_file} 正在创建......"
-    if ! touch "$log_file" || ! chmod u+w "$log_file"; then
-    	log_error "错误：日志文件创建失败!"
-    	log_error "错误：日志文件修改权限失败!"
-        exit 1
-    fi
-fi
-
 
 # 校验源目录是否存在
 log_info "正在校验源目录有效性" 
@@ -114,7 +102,7 @@ fi
 
 # 校验备份目录所在的磁盘空间
 disk_used=$(df --output=pcent "$target_dir" | tail -1 | awk '{print +$1}')
-if ![[ "$disk_used" =~ ^[0-9]+$ ]]; then
+if ! [[ "$disk_used" =~ ^[0-9]+$ ]]; then
     log_error "错误：无法解析备份盘使用率: $target_dir"
     exit 1
 fi
