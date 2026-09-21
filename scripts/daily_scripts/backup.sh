@@ -9,6 +9,7 @@ log_info() { echo -e "\033[32m[INFO] $(date '+%F %T') $*\033[0m" | tee -a "$log_
 log_warn() { echo -e "\033[33m[WARN] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
 
 TMPFILE=""
+KEEP=""
 
 # 清理函数
 clean_up() {
@@ -21,7 +22,7 @@ clean_up() {
 # 提示函数
 usage() {
 	# 用法: ./backup.sh [-k 保留份数] <源目录> <备份目录>
-    echo -e "\033[32m用法: ./backup.sh [-k 保留份数] <源目录> <备份目录>\033[0m"
+    echo -e "\033[32m用法: ./backup.sh [-k 保留份数(份数为正整数)] <源目录> <备份目录>\033[0m"
 }
 
 trap clean_up EXIT          # 任何退出都走清理（成功时 TMPFILE 已清空，不误删）
@@ -29,11 +30,36 @@ trap 'exit 130' INT         # Ctrl+C → 退出码 130 = 128 + 2(SIGINT)
 trap 'exit 143' TERM        # kill   → 退出码 143 = 128 + 15(SIGTERM)
 
 
+# 提取参数
+while getopts ":k:h" opt
+do
+	case "$opt" in
+    	k)
+        	if [[ $OPTARG =~ ^[0-9]+$ ]]; then
+            	log_error "错误：${$OPTARG}不为正整数！"
+                usage
+                exit 1
+            else 
+            	$KEEP=$OPTARG
+            fi
+            ;;
+         h) 
+         	usage
+            exit 0
+            ;;
+        \?)
+        	log_error "错误：非法参数！"
+            usage
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND - 2)) # 删除已经提取的参数，保留剩余参数(即普通参数)
+
 # 参数校验
 if [ $# -ne 2 ]; then
     log_error "错误：参数数量错误，需要提供源目录和备份目录!" 
-    log_error "用法：./backup.sh <源目录> <备份目录>" 
-    log_error "示例：./backup.sh /var/html /backupdir" 
+    usage
     exit 2
 fi
 
@@ -44,7 +70,6 @@ target_dir=$2
 # 磁盘空间阈值
 disk_max=90
 
-
 # 日志文件
 log_file="/var/log/backup.log"
 
@@ -53,7 +78,7 @@ log_info "正在校验日志文件有效性"
 if [[ ! -f "$log_file"  ]]; then
 	log_error "错误：${log_file} 源目录不存在或 ${log_file} 不是一个目录!" 
 	log_warn "警告：备份目录 ${log_file} 正在创建......"
-    if ! touch "$log_file" || chmod u+w "$log_file"; then
+    if ! touch "$log_file" || ! chmod u+w "$log_file"; then
     	log_error "错误：日志文件创建失败!"
     	log_error "错误：日志文件修改权限失败!"
         exit 1
@@ -65,8 +90,7 @@ fi
 log_info "正在校验源目录有效性" 
 if [[ ! -d "$source_dir"  ]]; then
 	log_error "错误：${source_dir} 源目录不存在或 ${source_dir} 不是一个目录!" 
-	log_error "用法：./backup.sh <源目录> <备份目录>" 
-    log_error "示例：./backup.sh /var/html /backupdir" 
+	usage
     exit 1
 fi
 
@@ -96,11 +120,6 @@ if [[ $disk_used -gt $disk_max ]]; then
 fi
 
 
-
-
-
-
-
 # 打包备份
 time=$(date "+%Y%m%d_%H%M%S") # 备份日期时间
 base_name=$(basename "$source_dir")
@@ -123,6 +142,26 @@ mv "$TMPFILE" "$FINAL_FILE"
 TMPFILE=""
 
 log_info "备份完成，路径：'$FINAL_FILE'，大小：$(du -h "$FINAL_FILE" | awk '{print $1}')"
+
+# 清理旧备份文件
+if [[ $KEEP == "" ]]; then
+	log_info "未传递最近保存时间参数，不进行旧备份的清理"
+    exit 0
+fi
+
+ls -l "$target_dir" | \
+sort -M | \
+awk 'NR > 1' | \
+head -+$KEEP | \
+awk '{print $NF}' | \
+while read -r line;
+do
+	if [[ "$line" | grep -E "^'$base_name'_*.tar.gz$" != "" ]]; then
+    	log_info "正在清理旧备份文件......"
+    	rm -f "$target_dir" + "$line"
+        log_info "已清理旧备份:" "$target_dir" "$line"
+    fi
+done
             
 
 
