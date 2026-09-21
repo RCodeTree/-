@@ -4,9 +4,9 @@
 set -euo pipefail
 
 # 日志函数
-log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m"; }
-log_info() { echo -e "\033[32m[INFO] $(date '+%F %T') $*\033[0m"; }
-log_warn() { echo -e "\033[33m[WARN] $(date '+%F %T') $*\033[0m"; }
+log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
+log_info() { echo -e "\033[32m[INFO] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
+log_warn() { echo -e "\033[33m[WARN] $(date '+%F %T') $*\033[0m" | tee -a "$log_file"; }
 
 TMPFILE=""
 
@@ -34,6 +34,9 @@ fi
 # 源目录、备份目录
 source_dir=$1
 target_dir=$2
+
+# 日志文件
+log_file=$3
 
 # 校验源目录是否存在
 log_info "正在校验源目录有效性" 
