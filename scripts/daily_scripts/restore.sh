@@ -8,7 +8,7 @@ log_warn() { echo -e "\033[33m[WARN] $(date '+%F %T') $*\033[0m"; }
 # 校验普通参数 参数1：文件  参数2：目标目录
   check_args() {
     # 校验文件有效性
-    if [[ ! -f "$1" || ! -r "$1" || ! "$1" =~ *.tar.gz ]]; then
+    if [[ ! -f "$1" || ! -r "$1" ]] || ! tar -tzf "$1" > /dev/null 2>&1; then
       log_error "错误: $1 不存在或不可读或不是有效文件!"
       exit 1
     fi
@@ -18,17 +18,24 @@ log_warn() { echo -e "\033[33m[WARN] $(date '+%F %T') $*\033[0m"; }
       log_error "错误: 错误：$2 源目录不存在或 $2 不是一个目录!"
       exit 1
     fi
+
+    # 校验目标目录是否为空
+    volume=$(ls -A "$2" | wc -l)
+    if [[ ! $volume -eq 0 ]]; then
+      log_error "错误: 目标目录 $2 非空!"
+      exit 1
+    fi
   }
 
   # 恢复文件
   restore() {
-    double_point=$(tar -tzf "$1" | grep -E "\.\." | wc -l)
+    double_point=$(tar -tzf "$1" | grep -E "(^|/)\.\.(/|$)" | wc -l)
     if [[ $double_point -eq 1 ]]; then
       log_error "错误: 备份路径存在问题，停止备份......"
       exit 1
     fi
 
-    count=$(tar -tzf "$1"  | awk "NR > 1" | wc -l)
+    count=$(tar -tzf "$1"  | wc -l)
 
     log_info "开始恢复: $1 -> $2"
     if ! tar -xvf "$1" -C "$2" > /dev/null 2>&1; then
