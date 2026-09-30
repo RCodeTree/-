@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 使用 set 防止脚本错误运行下去
+set -euo pipefail
+
 # 日志函数
 log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m"; }
 log_info() { echo -e "\033[32m[INFO] $(date '+%F %T') $*\033[0m"; }
@@ -28,8 +31,7 @@ check_args() {
 
 # 恢复文件
 restore() {
-  double_point=$(tar -tzf "$1" | grep -E "(^|/)\.\.(/|$)" | wc -l)
-  if [[ $double_point -ge 1 ]]; then
+  if tar -tzf "$1" | grep -qE "(^|/)\.\.(/|$)"; then
     log_error "错误: 备份路径存在问题，停止备份......"
     exit 1
   fi
@@ -37,7 +39,7 @@ restore() {
   count=$(tar -tzf "$1"  | wc -l)
 
   log_info "开始恢复: $1 -> $2"
-  if ! tar -xvf "$1" -C "$2" > /dev/null 2>&1; then
+  if ! tar -xf "$1" -C "$2"; then
     log_error "错误: 文件恢复失败!"
     exit 1
   fi
@@ -56,7 +58,6 @@ do
                 exit 2
               fi
 
-              check_args "$1" "$2"
               log_info "演练模式: 以下文件将被恢复到 $2（未实际执行）"
               tar -tzf "$1"
               exit 0
@@ -69,13 +70,13 @@ do
               fi
 
               check_args "$1" "$2"
-              log_warn "警告: 目标目录 $2 非空, 正在强制恢复数据!"
+              log_warn "警告: 强制模式，将覆盖恢复，正在强制恢复数据!"
               restore "$1" "$2"
               exit 0
               ;;
         \?)
               log_error "错误: 错误参数!"
-              exit 1
+              exit 2
               ;;
   esac
 done
@@ -84,7 +85,7 @@ done
 check_args "$1" "$2"
 # 校验目标目录是否为空
 volume=$(ls -A "$2" | wc -l)
-if [[ ! $volume -eq 0 ]]; then
+if [[ $volume -ne 0 ]]; then
   log_error "错误: 目标目录 $2 非空!"
   exit 1
 fi
