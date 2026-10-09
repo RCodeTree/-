@@ -4,6 +4,10 @@
 set -euo pipefail
 
 
+# 获取当前脚本名称
+BASENAME=$(basename "$0")
+
+
 # 选项参数
 CONFIG="" # 配置文件
 STATE="" # 状态文件
@@ -85,6 +89,41 @@ fi
 source "$LOG"
 
 
+# 运行脚本
+DATE=$(date "+%F %T")
+TMP_OUT=$(mktemp "/tmp/.${BASENAME}_${DATE}.XXXXXX")
+if bash "/tmp/healthcheck.sh" -c "$CONFIG_SCRIPT" -r "$RETRIES_SCRIPT" -t "$TIMEOUT_SCRIPT" > "$TMP_OUT" 2>&1; then # 本次巡检结果都为UP
+  log_info "上次状态: ${LAST_STATUS}"
+  log_info "本次状态: UP"
+  if [[ $LAST_STATUS == "DOWN" && $CURRENT_STATUS == "UP" ]]; then
+    echo "[$(date '+%F %T')] RECOVERY ${LAST_STATUS} -> ${CURRENT_STATUS} config=${CONFIG_SCRIPT} summary=\"巡检结束: 共 ${total} 项，UP=${up}，DOWN=${down}\"" >> "$LOG"
+    log_warn "检测到状态变化: ${LAST_STATUS} -> ${CURRENT_STATUS}，已写入告警日志${LOG}"
+  fi
+  sed -i "s/LAST_STATUS=.*/LAST_STATUS=UP/" "$STATE" # 更新状态
+  sed -i "s/LAST_CHECK_TIME=.*/LAST_CHECK_TIME=$(date "+%F %T")/" "$STATE" # 更新时间
+else # 本次巡检结果有不同的状态结果
+  rc=$? # 获取返回码
+  source "/tmp/healthcheck.sh"
+  CURRENT_STATUS="" # 当前状态
+  log_info "上次状态: ${LAST_STATUS}"
+  case $rc in
+    1)
+      CURRENT_STATUS="DOWN"
+      log_info "本次状态: ${CURRENT_STATUS}"
+      if [[ $LAST_STATUS == "UP" && $CURRENT_STATUS == "DOWN" ]]; then # 状态变化: UP -> DOWN
+        echo "[$(date '+%F %T')] ALERT ${LAST_STATUS} -> ${CURRENT_STATUS} config=${CONFIG_SCRIPT} summary=\"巡检结束: 共 ${total} 项，UP=${up}，DOWN=${down}\"" >> "$LOG"
+        log_warn "检测到状态变化: ${LAST_STATUS} -> ${CURRENT_STATUS}，已写入告警日志${LOG}"
+      fi
+      sed -i "s/LAST_STATUS=.*/LAST_STATUS=${CURRENT_STATUS}/" "$STATE" # 更新状态
+      sed -i "s/LAST_CHECK_TIME=.*/LAST_CHECK_TIME=$(date "+%F %T")/" "$STATE" # 更新时间
+      ;;
+    2)
+      log_info "本次状态: ERROR"
+
+      ;;
+  esac
+
+fi
 
 
 
