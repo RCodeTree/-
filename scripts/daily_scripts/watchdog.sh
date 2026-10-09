@@ -10,6 +10,14 @@ STATE="" # 状态文件
 LOG="/tmp/watchdog_alert.log" # 日志文件
 
 
+# 运行的脚本参数
+CONFIG_SCRIPT="/tmp/healthcheck.conf" # 配置文件
+RETRIES_SCRIPT=3 # 重试次数
+TIMEOUT_SCRIPT=3 # 超时时间
+INTERVAL_SCRIPT=2 # 间隔时间
+
+
+
 # 日志函数
 log_error() { echo -e "\033[31m[ERROR] $(date '+%F %T') $*\033[0m" >&2; }
 log_info() { echo -e "\033[32m[INFO] $(date '+%F %T') $*\033[0m"; }
@@ -51,7 +59,9 @@ if [ ! -f "$CONFIG" ]; then
 fi
 if [ ! -f "$STATE" ]; then
   log_error "状态文件不存在"
-  exit 2
+  log_info "正在创建状态文件..."
+  STATE=$(touch "$STATE")
+  log_info "状态文件已创建"
 fi
 if [ ! -r "$CONFIG" ]; then
   log_error "巡检配置文件不可读"
