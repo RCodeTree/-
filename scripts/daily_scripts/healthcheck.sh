@@ -120,7 +120,7 @@ while IFS= read -r line || [ -n "$line" ]; do
         log_error "[DOWN] $name ($type) -> $addr"
         down=$((down + 1))
     fi
-done < "$CONFIG"
+done < "$CONFIG" # 将这个配置文件内容读入循环
 
 log_info "巡检结束: 共 $total 项，UP=$up，DOWN=$down"
 
