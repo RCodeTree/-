@@ -81,7 +81,9 @@ if [ ! -w "$LOG" ]; then
 fi
 
 
-#
+#  source 状态文件，拿到 LAST_STATUS / LAST_CHECK_TIME
+source "$LOG"
+
 
 
 
