@@ -9,13 +9,12 @@ BASENAME=$(basename "$0")
 
 
 # 选项参数
-CONFIG="" # 配置文件
+CONFIG_SCRIPT="" # 传给运行脚本的配置文件
 STATE="" # 状态文件
 LOG="/tmp/watchdog_alert.log" # 日志文件
 
 
 # 运行的脚本参数
-CONFIG_SCRIPT="/tmp/healthcheck.conf" # 配置文件
 RETRIES_SCRIPT=3 # 重试次数
 TIMEOUT_SCRIPT=3 # 超时时间
 INTERVAL_SCRIPT=2 # 间隔时间
@@ -42,7 +41,7 @@ usage(){
 while getopts ":c:s:l:" opt
 do
   case $opt in
-    c) CONFIG="$OPTARG" ;;
+    c) CONFIG_SCRIPT="$OPTARG" ;;
     s) STATE="$OPTARG" ;;
     l) LOG="$OPTARG" ;;
     *) usage; exit 2 ;;
@@ -52,12 +51,12 @@ done
 
 
 # 校验选项参数
-if [ -z "$CONFIG" ] || [ -z "$STATE" ]; then
+if [ -z "$CONFIG_SCRIPT" ] || [ -z "$STATE" ]; then
   log_error "请传入巡检配置文件和状态文件"
   usage
   exit 2
 fi
-if [ ! -f "$CONFIG" ]; then
+if [ ! -f "$CONFIG_SCRIPT" ]; then
   log_error "巡检配置文件不存在"
   exit 2
 fi
@@ -67,11 +66,11 @@ if [ ! -f "$STATE" ]; then
   STATE=$(touch "$STATE")
   log_info "状态文件已创建"
 fi
-if [ ! -r "$CONFIG" ]; then
+if [ ! -r "$CONFIG_SCRIPT" ]; then
   log_error "巡检配置文件不可读"
   exit 2
 fi
-if [ ! -w "$CONFIG" ]; then
+if [ ! -w "$CONFIG_SCRIPT" ]; then
   log_error "巡检配置文件不可写"
   exit 2
 fi
@@ -86,13 +85,13 @@ fi
 
 
 #  source 状态文件，拿到 LAST_STATUS / LAST_CHECK_TIME
-source "$LOG"
+source "$STATE"
 
 
 # 运行脚本
 DATE=$(date "+%F %T")
 TMP_OUT=$(mktemp "/tmp/.${BASENAME}_${DATE}.XXXXXX")
-if bash "/tmp/healthcheck.sh" -c "$CONFIG_SCRIPT" -r "$RETRIES_SCRIPT" -t "$TIMEOUT_SCRIPT" > "$TMP_OUT" 2>&1; then # 本次巡检结果都为UP
+if bash "/云计算运维/scripts/daily_scripts/healthcheck.sh" -c "$CONFIG_SCRIPT" -r "$RETRIES_SCRIPT" -t "$TIMEOUT_SCRIPT" > "$TMP_OUT" 2>&1; then # 本次巡检结果都为UP
   log_info "上次状态: ${LAST_STATUS}"
   log_info "本次状态: UP"
   if [[ $LAST_STATUS == "DOWN" && $CURRENT_STATUS == "UP" ]]; then
@@ -103,7 +102,7 @@ if bash "/tmp/healthcheck.sh" -c "$CONFIG_SCRIPT" -r "$RETRIES_SCRIPT" -t "$TIME
   sed -i "s/LAST_CHECK_TIME=.*/LAST_CHECK_TIME=$(date "+%F %T")/" "$STATE" # 更新时间
 else # 本次巡检结果有不同的状态结果
   rc=$? # 获取返回码
-  source "/tmp/healthcheck.sh"
+  source "/云计算运维/scripts/daily_scripts/healthcheck.sh"
   CURRENT_STATUS="" # 当前状态
   log_info "上次状态: ${LAST_STATUS}"
   case $rc in
