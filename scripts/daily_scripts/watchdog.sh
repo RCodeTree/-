@@ -63,41 +63,34 @@ fi
 if [ ! -f "$STATE" ]; then
   log_error "状态文件不存在"
   log_info "正在创建状态文件..."
-  STATE=$(touch "$STATE")
+  printf 'LAST_STATUS=UNKNOWN\nLAST_CHECK_TIME=\n' > "$STATE"
   log_info "状态文件已创建"
 fi
 if [ ! -r "$CONFIG_SCRIPT" ]; then
   log_error "巡检配置文件不可读"
   exit 2
 fi
-if [ ! -w "$CONFIG_SCRIPT" ]; then
-  log_error "巡检配置文件不可写"
-  exit 2
-fi
-if [ ! -w "$STATE" ]; then
-  log_error "状态文件不可写"
-  exit 2
-fi
-if [ ! -w "$LOG" ]; then
-  log_error "日志文件不可写"
+if ! touch "$LOG" >/dev/null || [ ! -w "$LOG" ]; then
+  log_error "日志文件不存在或不可写"
   exit 2
 fi
 
 
 #  source 状态文件，拿到 LAST_STATUS / LAST_CHECK_TIME
-source "$STATE"
+[ -f "$STATE" ] && source "$STATE"
 
 
 # 运行脚本
-DATE=$(date "+%F %T")
+DATE=$(date "+%F-%T")
 TMP_OUT=$(mktemp "/tmp/.${BASENAME}_${DATE}.XXXXXX")
 CURRENT_STATUS="" # 当前状态
-if bash "/云计算运维/scripts/daily_scripts/healthcheck.sh" -c "$CONFIG_SCRIPT" -r "$RETRIES_SCRIPT" -t "$TIMEOUT_SCRIPT" > "$TMP_OUT" 2>&1 || true; then # 本次巡检结果都为UP
+if bash "/云计算运维/scripts/daily_scripts/healthcheck.sh" -c "$CONFIG_SCRIPT" -r "$RETRIES_SCRIPT" -t "$TIMEOUT_SCRIPT" > "$TMP_OUT" 2>&1; then # 本次巡检结果都为UP
+  summary=$(grep "巡检结束:" "$TMP_OUT" | tail -n 1) || true # 获取巡检结果
   log_info "上次状态: ${LAST_STATUS}"
   CURRENT_STATUS="UP"
   log_info "本次状态: ${CURRENT_STATUS}"
-  if [[ $LAST_STATUS == "DOWN" && $CURRENT_STATUS == "UP" ]]; then
-        # TODO
+  if [[ $LAST_STATUS == "DOWN" && $CURRENT_STATUS == "UP" ]]; then # RECOVERY
+    echo "[$(date '+%F %T')] RECOVERY ${LAST_STATUS} -> ${CURRENT_STATUS} config=${CONFIG_SCRIPT} summary=\"${summary}\"" >> "$LOG"
     log_warn "检测到状态变化: ${LAST_STATUS} -> ${CURRENT_STATUS}，已写入告警日志${LOG}"
   fi
   sed -i "s/LAST_STATUS=.*/LAST_STATUS=UP/" "$STATE" # 更新状态
@@ -106,27 +99,45 @@ else # 本次巡检结果有不同的状态结果
   rc=$? # 获取返回码
   log_info "上次状态: ${LAST_STATUS}"
   case $rc in
-    1)
+    1) # ALTER UP -> DOWN
+      summary=$(grep "巡检结束:" "$TMP_OUT" | tail -n 1) || true
       CURRENT_STATUS="DOWN"
       log_info "本次状态: ${CURRENT_STATUS}"
       if [[ $LAST_STATUS == "UP" && $CURRENT_STATUS == "DOWN" ]]; then # 状态变化: UP -> DOWN
-        # TODO
+        echo "[$(date '+%F %T')] ALTER ${LAST_STATUS} -> ${CURRENT_STATUS} config=${CONFIG_SCRIPT} summary=\"${summary}\"" >> "$LOG"
         log_warn "检测到状态变化: ${LAST_STATUS} -> ${CURRENT_STATUS}，已写入告警日志${LOG}"
       fi
       sed -i "s/LAST_STATUS=.*/LAST_STATUS=${CURRENT_STATUS}/" "$STATE" # 更新状态
       sed -i "s/LAST_CHECK_TIME=.*/LAST_CHECK_TIME=$(date "+%F %T")/" "$STATE" # 更新时间
       ;;
-    2)
+    2) # ERROR
+      summary=$(grep "巡检结束:" "$TMP_OUT" | tail -n 1) || true
       CURRENT_STATUS="ERROR"
       log_info "本次状态: ${CURRENT_STATUS}"
-      # TODO
-      log_error "检测到异常: 脚本错误/配置错误，已写入告警日志${LOG}"
+      log_error "检测到异常: 脚本错误/配置错误!!!"
+      echo "[$(date '+%F %T')] ERROR ${LAST_STATUS} -> ${CURRENT_STATUS} config=${CONFIG_SCRIPT} summary=\"${summary}\"" >> "$LOG"
+      log_info "详细信息请见日志文件: ${LOG}"
       sed -i "s/LAST_STATUS=.*/LAST_STATUS=${CURRENT_STATUS}/" "$STATE" # 更新状态
       sed -i "s/LAST_CHECK_TIME=.*/LAST_CHECK_TIME=$(date "+%F %T")/" "$STATE" # 更新时间
       ;;
   esac
-
 fi
+
+
+# 临时文件打包落盘
+tar -zcf "/tmp/.${BASENAME}_${DATE}.tar.gz" "$TMP_OUT" -C "/tmp/"
+
+# 清理临时文件
+trap 'rm -f "$TMP_OUT"' EXIT
+
+
+# 设置 watchdog 退出码
+case $CURRENT_STATUS in
+  UP) exit 0 ;;
+  DOWN) exit 1 ;;
+  ERROR) exit 2 ;;
+  *) exit 3 ;;
+esac
 
 
 
