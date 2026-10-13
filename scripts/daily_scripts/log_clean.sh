@@ -52,18 +52,31 @@ do
     \?)
       log_error "错误: 非法参数: $OPTARG!";
       usage;
-      exit 1
+      exit 2
       ;;
     :)
       log_error "错误: 未能提供参数值!";
       usage;
-      exit 1
+      exit 2
       ;;
   esac
 done
 
 
 # 校验选项参数
+if [ -z "$log_dir" ]; then
+  usage;
+  exit 2
+fi
+if ! [[ "$preserve_day" =~ ^[0-9]+$ ]] || [ "$preserve_day" -lt 1 ]; then
+  log_error "错误: 保留天数必须是正整数: $preserve_day!"
+  usage;
+  exit 2
+fi
+if [ ! -d "$log_dir" ]; then
+  log_error "错误: 日志目录不存在: $log_dir!"
+  exit 1
+fi
 real_dir=$(readlink -f "$log_dir")
 for (( i = 0; i < ${#blacklist_dir[@]}; i++ )); do
   if [ "$real_dir" = "${blacklist_dir[$i]}" ]; then
@@ -71,28 +84,27 @@ for (( i = 0; i < ${#blacklist_dir[@]}; i++ )); do
     exit 1
   fi
 done
-if [ ! -d "$log_dir" ]; then
-  log_error "错误: 日志目录不存在: $log_dir -> $real_dir!"
-  exit 1
-fi
 if [[ ! -x "$log_dir" || ! -r "$log_dir" ]]; then
   log_error "错误: 日志目录无执行或读取权限: $log_dir -> $real_dir!"
   exit 1
 fi
-if [[ ! $preserve_day =~ ^[1-9]+$ ]]; then
-  log_error "错误: 保留天数必须是正整数: $preserve_day!"
-  exit 2
-fi
 
 
+# 获取find后的文件列表 --- mapfile 返回一个数组
+mapfile -t targets < <(find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day 2>/dev/null)
 # 获取清理文件数量和体积
-clean_count=$(find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day | wc -l) # 清理的文件数量
-clean_volume=$(du -ch $(find "$log_dir"  -type f -name '*.log' -mtime +"$preserve_day") | tail -n 1 | awk '{print $1}') # 清理的文件体积
+clean_count=${#targets[@]} # 清理的文件数量
+clean_volume=0
+if [[ "$clean_count" -gt 0 ]]; then
+  clean_volume=$(du -ch "${targets[@]}" | tail -n 1 | awk '{print $1}' 2>/dev/null) # 清理的文件体积
+else
+  clean_volume="0"
+fi
 
 
 # dry-run模式
 if [ "$execute_mode" = false ]; then
-  log_warn "[dry-run]以下 $clean_count 个文件将被处理（模式: delete，合计约 $clean_volume）:"
+  log_warn "[dry-run]以下 $clean_count 个文件将被处理（模式: $([[ "$compress_mode" = true ]] && echo -n "compress" || echo -n "delete")，合计约 $clean_volume）:"
   find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day
   log_info "本次为演练，未做任何改动。确认无误后加 -e 执行。"
   echo "date:$(date '+%F %T') mode:dry-run dir:${log_dir} preserve_day:${preserve_day} clean_count:${clean_count} result:success" >> "$review_log"
@@ -102,10 +114,11 @@ fi
 
 # 删除模式
 if [[ "$execute_mode" = true && "$compress_mode" = false ]]; then
-  while IFS= read -r file || [[ -n "$file" ]]; do
-    rm -f "$file"
-    log_info "已删除: $file"
-  done < $(find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day)
+  for f in "${targets[@]}";
+  do
+    rm -f "$f"
+    log_info "已删除: $f"
+  done
   log_info "处理完成: 共命中 $clean_count 个，成功处理 $clean_count 个（模式: delete，约 $clean_volume）"
   echo "date:$(date '+%F %T') mode:delete dir:${log_dir} preserve_day:${preserve_day} clean_count:${clean_count} result:success" >> "$review_log"
   exit 0
@@ -114,15 +127,17 @@ fi
 
 # 压缩模式
 if [[ "$execute_mode" = true && "$compress_mode" = true ]]; then
-  while IFS= read -r file || [[ -n "$file" ]]; do
-    if ! gzip "$file"; then
-      log_error "压缩失败: $file!"
-      exit 1
+  ok=0
+  for f in "${targets[@]}";
+  do
+    if ! gzip -f "$f"; then # rm -f "$f" 是多余的——gzip -f 已经删掉原文件了
+      log_error "压缩失败: $f!"
+      continue
     fi
-    log_info "已压缩: $file"
-    rm -f "$file"
-  done < $(find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day)
-  log_info "处理完成: 共命中 $clean_count 个，成功处理 $compress_count 个（模式: compress，约 $clean_volume）"
+    ((ok++)) || true
+    log_info "已压缩: $f"
+  done
+  log_info "处理完成: 共命中 $clean_count 个，成功处理 $ok 个（模式: compress，约 $clean_volume）"
   echo "date:$(date '+%F %T') mode:compress dir:${log_dir} preserve_day:${preserve_day} clean_count:${clean_count} result:success" >> "$review_log"
   exit 0
 fi
