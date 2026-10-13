@@ -101,16 +101,30 @@ fi
 
 # 删除模式
 if [[ "$execute_mode" = true && "$compress_mode" = false ]]; then
-  delete_count=0
   while IFS= read -r file || [[ -n "$file" ]]; do
     rm -f "$file"
-    ((delete_count++))
+    log_info "已删除: $file"
   done < $(find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day)
   log_info "处理完成: 共命中 $clean_count 个，成功处理 $clean_count 个（模式: delete，约 $clean_volume）"
   echo "date:$(date '+%F %T') mode:delete dir:${log_dir} preserve_day:${preserve_day} clean_count:${clean_count} result:success" >> "$review_log"
   exit 0
 fi
 
+
+# 压缩模式
+if [[ "$execute_mode" = true && "$compress_mode" = true ]]; then
+  while IFS= read -r file || [[ -n "$file" ]]; do
+    if ! gzip "$file"; then
+      log_error "压缩失败: $file!"
+      exit 1
+    fi
+    log_info "已压缩: $file"
+    rm -f "$file"
+  done < $(find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day)
+  log_info "处理完成: 共命中 $clean_count 个，成功处理 $compress_count 个（模式: compress，约 $clean_volume）"
+  echo "date:$(date '+%F %T') mode:compress dir:${log_dir} preserve_day:${preserve_day} clean_count:${clean_count} result:success" >> "$review_log"
+  exit 0
+fi
 
 
 
