@@ -65,7 +65,7 @@ done
 
 # 校验选项参数
 for (( i = 0; i < ${#blacklist_dir[@]}; i++ )); do
-  if [ "$log_dir" == "${blacklist_dir[$i]}" ]; then
+  if [ "$log_dir" = "${blacklist_dir[$i]}" ]; then
     log_error "错误: 日志目录在黑名单中: $log_dir!"
     exit 1
   fi
@@ -84,12 +84,33 @@ if [[ ! $preserve_day =~ ^[1-9]+$ ]]; then
 fi
 
 
+# 获取清理文件数量和体积
+clean_count=$(find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day | wc -l) # 清理的文件数量
+clean_volume=$(du -ch $(find "$log_dir"  -type f -name '*.log' -mtime +"$preserve_day") | tail -n 1 | awk '{print $1}') # 清理的文件体积
+
+
 # dry-run模式
 if [ "$execute_mode" = false ]; then
-  log_warn " dry-run 模式: 不会删除/压缩文件，只打印将处理的文件"
-  log_warn " 保留天数: $preserve_day"
+  log_warn "[dry-run]以下 $clean_count 个文件将被处理（模式: delete，合计约 $clean_volume）:"
   find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day
+  log_info "本次为演练，未做任何改动。确认无误后加 -e 执行。"
+  echo "date:$(date '+%F %T') mode:dry-run dir:${log_dir} preserve_day:${preserve_day} clean_count:${clean_count} result:success" >> "$review_log"
+  exit 0
 fi
+
+
+# 删除模式
+if [[ "$execute_mode" = true && "$compress_mode" = false ]]; then
+  delete_count=0
+  while IFS= read -r file || [[ -n "$file" ]]; do
+    rm -f "$file"
+    ((delete_count++))
+  done < $(find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day)
+  log_info "处理完成: 共命中 $clean_count 个，成功处理 $clean_count 个（模式: delete，约 $clean_volume）"
+  echo "date:$(date '+%F %T') mode:delete dir:${log_dir} preserve_day:${preserve_day} clean_count:${clean_count} result:success" >> "$review_log"
+  exit 0
+fi
+
 
 
 
