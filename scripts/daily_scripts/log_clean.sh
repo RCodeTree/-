@@ -64,18 +64,19 @@ done
 
 
 # 校验选项参数
+real_dir=$(readlink -f "$log_dir")
 for (( i = 0; i < ${#blacklist_dir[@]}; i++ )); do
-  if [ "$log_dir" = "${blacklist_dir[$i]}" ]; then
-    log_error "错误: 日志目录在黑名单中: $log_dir!"
+  if [ "$real_dir" = "${blacklist_dir[$i]}" ]; then
+    log_error "错误: 日志目录在黑名单中: $log_dir -> $real_dir!"
     exit 1
   fi
 done
 if [ ! -d "$log_dir" ]; then
-  log_error "错误: 日志目录不存在: $log_dir!"
+  log_error "错误: 日志目录不存在: $log_dir -> $real_dir!"
   exit 1
 fi
 if [[ ! -x "$log_dir" || ! -r "$log_dir" ]]; then
-  log_error "错误: 日志目录无执行或读取权限: $log_dir!"
+  log_error "错误: 日志目录无执行或读取权限: $log_dir -> $real_dir!"
   exit 1
 fi
 if [[ ! $preserve_day =~ ^[1-9]+$ ]]; then
