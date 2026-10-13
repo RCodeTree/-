@@ -4,6 +4,10 @@
 set -euo pipefail
 
 
+# 目录黑名单
+blacklist_dir=("/" "/etc" "/bin" "/sbin" "/usr" "/lib" "/boot" "/root" "/dev" "/proc" "/sys")
+
+
 # 选项参数
 log_dir="" # 日志目录(要清理的)
 preserve_day=7 # 保留天数 --- 默认值 7 天
@@ -60,6 +64,12 @@ done
 
 
 # 校验选项参数
+for (( i = 0; i < ${#blacklist_dir[@]}; i++ )); do
+  if [ "$log_dir" == "${blacklist_dir[$i]}" ]; then
+    log_error "错误: 日志目录在黑名单中: $log_dir!"
+    exit 1
+  fi
+done
 if [ ! -d "$log_dir" ]; then
   log_error "错误: 日志目录不存在: $log_dir!"
   exit 1
@@ -73,6 +83,13 @@ if [[ ! $preserve_day =~ ^[1-9]+$ ]]; then
   exit 2
 fi
 
+
+# dry-run模式
+if [ "$execute_mode" = false ]; then
+  log_warn " dry-run 模式: 不会删除/压缩文件，只打印将处理的文件"
+  log_warn " 保留天数: $preserve_day"
+  find "$log_dir"  -type f -name '*.log' -mtime +$preserve_day
+fi
 
 
 
