@@ -1,3 +1,4 @@
+from time import sleep
 import os
 
 # os 模块（操作系统接口）
@@ -49,12 +50,29 @@ print(f"路径 {p} 的扩展名: {ext[1]}") # 返回元组 ext[0] -> logs\app，
 print(f"路径 {current_file + '\\os.py'} 的大小: {size} 字节") # 获取文件大小，以字节为单位
 
 
+print("\n")
 
 
 # 3. 目录与文件操作
-#
-# os.listdir(d) 列出目录
-# os.walk(d) 递归遍历（返回 (当前目录, 子目录列表, 文件列表)）
+# os.listdir(d) 列出目录和文件 返回列表
+# os.walk(d) 递归遍历（返回 (当前目录, 子目录列表, 文件列表)） 返回生成器(即迭代器)
 # os.makedirs(p, exist_ok=True) 建多层目录（exist_ok=True 避免已存在报错）
 # os.remove / os.rename
+dirs = os.listdir("..") # 列出上一级目录下的文件和子目录 返回列表
+
+dirs2 = os.walk("..") # 递归遍历上一级目录 返回 (当前目录, 子目录列表, 文件列表)
+
+# os.makedirs("./test/ostest", exist_ok=True) # 建多层目录（exist_ok=True 避免已存在报错）
+# sleep(3) # 程序睡眠 3 秒
+# # os.remove("./test/ostest/demo") # 删除文件
+# os.rename("./test/ostest/demo", "./test/ostest/demo_renamed") # 重命名文件名
+
+print(f"上一级目录下的文件和子目录: {dirs}")
+for dirpath, dirnames, filenames in dirs2:
+    print(f"当前目录: {dirpath}")
+    print(f"子目录列表: {dirnames}")
+    print(f"文件列表: {filenames}")
+    print("-" * 20)
+
+
 
