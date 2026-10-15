@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 
 # 面向对象的 pathlib 替代字符串拼路径，用 shutil 完成复制、打包、磁盘巡检。这是采集器/日志清理/备份脚本的底层能力。
 
@@ -88,6 +89,20 @@ print("\n")
 # Path("out.txt").write_text("hello", encoding="utf-8")
 # print(Path("out.txt").read_text(encoding="utf-8"))
 # Path("out.txt").unlink()      # 删除文件
+
+
+print("\n")
+
+
+# shutil
+shutil.copy("a.log", "b.log")        # 复制文件
+shutil.copy2("a.log", "b.log")       # 连修改时间等元数据一起复制
+shutil.copytree("src", "dst")        # 复制目录树
+shutil.rmtree("dst")                 # ⚠️ 递归删除，不可恢复
+shutil.move("a.log", "backup/")
+shutil.make_archive("logs", "zip", "logs")   # 打包 logs/ → logs.zip
+shutil.which("python")               # 查命令路径（类似 Shell 的 which）
+
 
 
 
