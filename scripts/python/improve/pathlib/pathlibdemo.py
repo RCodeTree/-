@@ -95,13 +95,13 @@ print("\n")
 
 
 # shutil
-shutil.copy("a.log", "b.log")        # 复制文件
-shutil.copy2("a.log", "b.log")       # 连修改时间等元数据一起复制
-shutil.copytree("src", "dst")        # 复制目录树
-shutil.rmtree("dst")                 # ⚠️ 递归删除，不可恢复
-shutil.move("a.log", "backup/")
-shutil.make_archive("logs", "zip", "logs")   # 打包 logs/ → logs.zip
-shutil.which("python")               # 查命令路径（类似 Shell 的 which）
+# shutil.copy("a.log", "b.log")        # 复制文件
+# shutil.copy2("a.log", "b.log")       # 连修改时间等元数据一起复制
+# shutil.copytree("src", "dst")        # 复制目录树
+# shutil.rmtree("dst")                 # ⚠️ 递归删除，不可恢复
+# shutil.move("a.log", "backup/")
+# shutil.make_archive("logs", "zip", "logs")   # 打包 logs/ → logs.zip
+# shutil.which("python")               # 查命令路径（类似 Shell 的 which）
 
 
 
