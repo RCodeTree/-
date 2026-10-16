@@ -85,7 +85,7 @@ print("\n")
 
 
 # 建目录 / 读写文件
-# Path("a/b/c").mkdir(parents=True, exist_ok=True)  # 建多层，已存在不报错
+# Path("a/b/c").mkdir(parents=True, exist_ok=True)  # 建多层，已存在不报错 parents=True 表示建多层目录
 # Path("out.txt").write_text("hello", encoding="utf-8")
 # print(Path("out.txt").read_text(encoding="utf-8"))
 # Path("out.txt").unlink()      # 删除文件
