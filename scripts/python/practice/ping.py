@@ -1,6 +1,6 @@
 import subprocess, sys
 
-def ping_ok(host, count=1):
+def ping_ok(host, count=1):   # Python的条件表达式：  A if 条件 else B
     cmd = ["ping", "-n" if sys.platform == "win32" else "-c", str(count), host]
     try:
         subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=5)
