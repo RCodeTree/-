@@ -11,7 +11,7 @@
 # shell=True + 字符串拼接 = 命令注入漏洞
 
 
-'''
+"""
 subprocess.run(..., env=env) 的 env 参数有个坑：
     一旦传入 env，子进程就「完全」使用你给的这份环境，不会自动和父进程合并
     子进程里就没有 PATH、HOME、SYSTEMROOT 等一堆变量了，结果可能是：
@@ -27,5 +27,4 @@ env = {**os.environ, "MY_APP_ENV": "staging"}   # 基于现有环境增量添加
 r = subprocess.run([sys.executable, "-c", "import os; print(os.environ['MY_APP_ENV'])"],
                    capture_output=True, text=True, env=env)
 print(r.stdout)
-
-'''
+"""
