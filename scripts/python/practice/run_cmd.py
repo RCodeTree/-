@@ -21,6 +21,8 @@ def main():
         print(f'result.stderr: {e.stderr}  result.returncode: {e.returncode}')
     except subprocess.TimeoutExpired as e:
         print(f'timeout: {e}')
+    except Exception as e:
+        print(f'other error: {e}')
 
     pass
 
