@@ -1,0 +1,108 @@
+# 文件路徑: .github/workflows/your-workflow-name.yml
+
+name: Test and Build RC Branch
+
+# 觸發器：當有程式碼推送到 rc 分支時，或手動觸發時運行
+on:
+  push:
+    branches:
+      - rc
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 第一步：檢出程式碼
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 第二步：設定映像檔名稱 (可選，方便管理)
+      - name: Set up image name
+        id: set_image_name
+        run: echo "IMAGE_NAME=my-app:${{ github.sha }}" >> $GITHUB_ENV
+
+      # 第三步：建構 Podman 映像檔並檢查是否成功
+      # 如果 build 失敗，"|| { ... }" 會執行，並以狀態 1 退出，導致整個 job 失敗
+      - name: Build container image with Podman
+        run: |
+          podman build -t "${{ env.IMAGE_NAME }}" -f ./Containerfile . || { echo "Podman build 失敗。"; exit 1; }
+          echo "Podman build 成功。"
+      # 第四步：運行測試腳本
+      # 這一步假設你的腳本會通過 set-output 的方式輸出結果
+      # 例如：
+      # echo "result_title=測試成功" >> $GITHUB_OUTPUT
+      # echo "details=所有單元測試和整合測試均已通過。" >> $GITHUB_OUTPUT
+      # echo "result_color=green" >> $GITHUB_OUTPUT
+      - name: Run RC branch tests
+        id: run_tests
+        run: |
+          chmod +x ./scripts/test_rc.sh
+          ./scripts/test_rc.sh
+      # 第五步：準備飛書消息的 JSON Payload
+      - name: Prepare Feishu message payload
+        id: prepare_payload
+        env:
+          # 從上一步的輸出中獲取環境變數
+          FEISHU_TITLE: ${{ steps.run_tests.outputs.result_title }}
+          FEISHU_DETAILS: ${{ steps.run_tests.outputs.details }}
+          FEISHU_COLOR: ${{ steps.run_tests.outputs.result_color }}
+          # 引用 GitHub 的上下文變數
+          REPO_NAME: ${{ github.repository }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          ACTOR_NAME: ${{ github.actor }}
+        run: |
+          # 使用 jq 命令生成緊湊的單行 JSON，避免格式錯誤
+          FEISHU_PAYLOAD=$(jq -cn \
+            --arg title "$FEISHU_TITLE" \
+            --arg details "$FEISHU_DETAILS" \
+            --arg color "$FEISHU_COLOR" \
+            --arg repo "$REPO_NAME" \
+            --arg branch "$BRANCH_NAME" \
+            --arg actor "$ACTOR_NAME" \
+            '{
+              "msg_type": "interactive",
+              "card": {
+                "config": { "wide_screen_mode": true },
+                "header": {
+                  "title": { "tag": "plain_text", "content": $title },
+                  "template": $color
+                },
+                "elements": [
+                  {
+                    "tag": "div",
+                    "text": {
+                      "tag": "lark_md",
+                      "content": "**📦 倉庫:** \($repo)\n**🌳 分支:** \($branch)\n**👤 提交者:** \($actor)"
+                    }
+                  },
+                  { "tag": "hr" },
+                  {
+                    "tag": "div",
+                    "text": {
+                      "tag": "lark_md",
+                      "content": $details
+                    }
+                  }
+                ]
+              }
+            }')
+          
+          # 將單行的 JSON 字串寫入 GITHUB_ENV，供後續步驟使用
+          echo "FEISHU_PAYLOAD=$FEISHU_PAYLOAD" >> $GITHUB_ENV
+        shell: bash
+
+      # 第六步：發送飛書通知
+      - name: Send Feishu notification
+        # 使用 if: always() 可確保即使前面的步驟（例如測試）失敗，只要 podman build 成功，
+        # 仍然會發送通知。如果只希望在所有步驟都成功時才發送，可以移除此行。
+        if: always()
+        run: |
+          # 使用單引號 ' ' 將變數包裹起來，防止 shell 解釋 JSON 中的特殊字符
+          curl -X POST -H "Content-Type: application/json" \
+            -d '${{ env.FEISHU_PAYLOAD }}' \
+            "${{ secrets.FEISHU_WEBHOOK_URL }}"
+        env:
+          # 確保你的 secrets.FEISHU_WEBHOOK_URL 已經在 GitHub > Settings > Secrets and variables > Actions 中正確設定
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
