@@ -20,7 +20,8 @@ def main():
     print(result["db"]["host"])
     print(result["ports"])
 
-    result = yaml.safe_load(open("../practice/test.yaml", "r", encoding="utf-8"))
+    with open("../practice/test.yaml", "r", encoding="utf-8") as f:
+        result = yaml.safe_load(f)
     print(result)
     print(result["name"])
     pass
