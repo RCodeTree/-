@@ -35,13 +35,13 @@ print("\n")
 
 # findall 提取所有 IP 并去重
 text = "node1 10.0.0.5 node2 10.0.0.8 node1 10.0.0.5"
-ips = sorted(set(re.findall(r'\d+\.\d+\.\d+\.\d+', text)))
+ips = sorted(set(re.findall(r'\d+\.\d+\.\d+\.\d+', text)))  # set() 把列表转成集合，集合天然不含重复元素    sorted() 接收任何可迭代对象，返回一个新的有序列表
 print(ips)  # ['10.0.0.5', '10.0.0.8']
 
 print("\n")
 
 # 提取 5xx 错误码
 for line in ['GET / 502', 'GET / 200', 'POST /x 504']:
-    m = re.search(r'\b(50\d)\b', line) # \b 不匹配字符，它匹配一个位置：这个位置的一边是"单词字符"（\w：字母、数字、下划线），另一边不是单词字符（空格、标点、行首行尾等）
+    m = re.search(r'\b(50\d)\b', line)  # \b 不匹配字符，它匹配一个位置：这个位置的一边是"单词字符"（\w：字母、数字、下划线），另一边不是单词字符（空格、标点、行首行尾等）
     if m:
         print("5xx 错误:", m.group())
