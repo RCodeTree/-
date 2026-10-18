@@ -11,9 +11,15 @@ import logging
 # 库代码里没有出现任何 basicConfig / setLevel，但日志照样按应用的配置输出——因为库的 logger 默认 propagate=True，会向上冒泡到根 logger 的 handler。
 
 
+# 根配置，影响所有 logger
 logging.basicConfig(
     level=logging.INFO,  # 级别门槛
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
     handlers=[logging.StreamHandler(),  # 控制台
               logging.FileHandler("app.log")],  # 文件
 )
+
+# 模块级配置，影响当前模块(假设，如果为模块，必须使用logging.getLogger(__name__)，以便按模块名分层)
+logging.info("服务启动")
+logging.warning("磁盘使用率 82%")
+logging.error("连接数据库失败")
