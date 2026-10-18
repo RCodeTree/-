@@ -1,3 +1,5 @@
+# yaml 用于人写配置（Docker Compose、K8s 清单、CI 文件，可读性好、支持注释）
+
 import yaml
 
 # yaml.safe_dump(obj, f, allow_unicode=True)
