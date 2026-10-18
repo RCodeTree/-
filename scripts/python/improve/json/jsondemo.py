@@ -19,3 +19,17 @@ indent=2：缩进美化。
 类型映射：dict→object, list→array, str→string, int/float→number, True→true, None→null。
 ⚠️ 坑：datetime 对象不能直接 dumps，要先 str() 转字符串。
 """
+#  json 落盘与读回 把 {"app": "collector", "interval": 30, "enable": True} 写入 config.json（ensure_ascii=False, indent=2），再读回打印 interval。
+
+def main():
+    Dict = {"app": "collector", "interval": 30, "enable": True}
+    with open("../../practice/test.json", "w", encoding="utf-8") as f:
+        json.dump(Dict, f, ensure_ascii=False, indent=2) # 序列化到文件中(写到文件中) 字典对象 --> 文件
+    with open("../../practice/test.json", "r", encoding="utf-8") as f:
+        result = json.load(f) # 反序列化到对象(读取到程序中) 文件 ---> 字典对象
+        print(result["interval"])
+    pass
+
+
+if __name__ == "__main__":
+    main()

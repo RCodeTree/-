@@ -1,7 +1,7 @@
 import yaml
 
-# cfg = yaml.safe_load(text)      # ✅ 只认数据，安全
 # yaml.safe_dump(obj, f, allow_unicode=True)
+# cfg = yaml.safe_load(text)      # ✅ 只认数据，安全
 
 """
 ⚠️ 安全红线：永远 safe_load，禁用 yaml.load()。

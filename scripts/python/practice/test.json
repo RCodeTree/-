@@ -1,0 +1,5 @@
+{
+  "app": "collector",
+  "interval": 30,
+  "enable": true
+}
