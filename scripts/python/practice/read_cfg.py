@@ -1,3 +1,6 @@
+from fileinput import close
+from unittest import result
+
 import yaml
 
 
@@ -16,6 +19,10 @@ def main():
     print(result["app"])
     print(result["db"]["host"])
     print(result["ports"])
+
+    result = yaml.safe_load(open("../practice/test.yaml", "r", encoding="utf-8"))
+    print(result)
+    print(result["name"])
     pass
 
 
