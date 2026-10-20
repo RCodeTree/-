@@ -11,9 +11,7 @@ def main():
     parser.add_argument("-v", "--verbose", action="store_true", help="是否显示详细信息")
 
     args = parser.parse_args()
-    print(args.host)
-    print(args.port)
-    print(args.interval)
+    print(args)
 
     print("\n")
 
