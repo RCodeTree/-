@@ -1,4 +1,7 @@
 import logging
+import collect
+import report
+
 
 def main():
     # 配置日志
@@ -12,9 +15,14 @@ def main():
     )
 
 
+    collect.get_memory()
+
+
+
 
 
     pass
+
 
 if __name__ == "__main__":
     main()

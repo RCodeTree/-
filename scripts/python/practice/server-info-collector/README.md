@@ -4,6 +4,12 @@
 - 输出：结构化数据 → 按时间戳命名落盘（collector-YYYYMMDD-HHMMSS.json）
 - 日志：同时写控制台 + 文件
 - 健壮性（关键）：某一项采集失败，不能拖垮整个脚本，记日志并继续
+ - 它大概是这样的一个工具：
+    - CLI 参数（argparse）接收目标与选项；
+    - 采集主机名/CPU/内存/磁盘/网络（os/socket/shutil/psutil）；
+    - 输出成 json / yaml（可落盘）；
+    - 全程规范日志（logging），异常可处理（subprocess 执行命令）；
+    - 时间戳命名报告文件（datetime）。
 
 # 二、项目结构
 ```plaintext
