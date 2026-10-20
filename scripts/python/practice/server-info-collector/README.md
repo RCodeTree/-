@@ -19,4 +19,18 @@ server-info-collector/
 - psutil>=5.9
 - PyYAML>=6.0
 
+# 四、验收标准
+``` python
+# 在 venv 中
+pip install -r requirements.txt
+python collector.py                # json 输出
+python collector.py --output yaml -v
+```
+### 验收标准（4 条，全部满足才算过）：
+- 两种输出（json/yaml）都正常，文件落在 reports/ 且带时间戳；
+- 故障隔离：故意把某项采集弄坏（比如临时把 get_cpu 改成抛异常），脚本仍能跑完、该项显示 null 且日志记录堆栈；
+- 日志同时出现在控制台和 collector.log；
+- 你能讲清楚每一行代码用到了前面哪一课的知识点。
+
+
 ---
