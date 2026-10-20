@@ -7,15 +7,16 @@ def main():
     # 配置日志
     logging.basicConfig(
         level=logging.DEBUG,
-        format='%(asctime)s - %(levelname)s - %(message)s',
+        format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
         handlers=[
-            logging.FileHandler('collector.log'),
+            logging.FileHandler('collector.log', encoding="utf-8"),
             logging.StreamHandler()
         ]
+
     )
 
 
-    collect.get_memory()
+    collect.get_process_count()
 
 
 
