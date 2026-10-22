@@ -3,6 +3,7 @@ import yaml
 import collect
 import json
 from datetime import datetime
+from pathlib import Path
 
 log = logging.getLogger("report")  # 配置模块日志
 
@@ -11,43 +12,41 @@ log = logging.getLogger("report")  # 配置模块日志
 def get_os_info():
     date = datetime.now().strftime("%Y%m%d-%H%M%S")
     collector = {
-        "hostname": collect.get_hostname,
-        "os": collect.get_os,
-        "cpu": collect.get_cpu,
-        "memory": collect.get_memory,
-        "disk": collect.get_disk,
-        "IPv4": collect.get_IPv4,
-        "boot_time": collect.get_boot_time,
-        "process_count": collect.get_process_count
+        "hostname": collect.get_hostname(),
+        "os": collect.get_os(),
+        "cpu": collect.get_cpu(),
+        "memory": collect.get_memory(),
+        "disk": collect.get_disk(),
+        "IPv4": collect.get_IPv4(),
+        "boot_time": collect.get_boot_time(),
+        "process_count": collect.get_process_count()
     }
 
     os_info = {}
     for key, fn in collector.items():
         try:
-            os_info[key] = fn()
+            os_info[key] = fn
         except Exception:
+            os_info[key] = None
             log.exception("采集失败: %s", key)
     return os_info, date
 
 
 # 序列化成json文件
-def record_for_json():
+def record_for_json(out_dir="reports"):
     os_info, date = get_os_info()
-    try:
-        with open(f"collector-{date}.json", "w", encoding="utf-8") as json_file:
-            json.dump(os_info, json_file, ensure_ascii=False, indent=2)
-        log.info(f"已经记录到collector-{date}.json中")
-    except Exception:
-        log.exception("文件操作异常，请检查!")
-        return
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / f"collector-{date}.json"
+    path.write_text(json.dumps(os_info, ensure_ascii=False, indent=2), encoding="utf-8")
+    log.info("已记录到 %s", path)
 
 
 # 序列化成yaml文件
-def record_for_yaml():
+def record_for_yaml(out_dir="reports"):
     os_info, date = get_os_info()
-    try:
-        with open(f"collector-{date}.yaml", "w", encoding="utf-8") as json_file:
-            yaml.safe_dump(os_info, json_file, allow_unicode=True)
-        log.info(f"已经记录到collector-{date}.yaml中")
-    except Exception:
-        log.exception("文件操作异常，请检查!")
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / f"collector-{date}.yaml"
+    path.write_text(yaml.safe_dump(os_info, allow_unicode=True), encoding="utf-8")
+    log.info("已记录到 %s", path)

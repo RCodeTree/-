@@ -9,8 +9,9 @@ log = logging.getLogger("collect")  # 配置模块日志
 
 
 # 采集主机名
+# os.uname() 仅 Linux 可用；跨平台取主机名用 socket.gethostname() 或 platform.node()。跨平台脚本要避免 Unix 专属接口。
 def get_hostname():
-    hostname = os.uname().nodename
+    hostname = platform.node()
     log.info("获取主机名成功：%s", hostname)
     return hostname
 

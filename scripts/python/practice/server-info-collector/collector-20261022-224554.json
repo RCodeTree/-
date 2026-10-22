@@ -1,0 +1,63 @@
+{
+  "hostname": "DESKTOP-8OKUFUT",
+  "os": "Windows",
+  "cpu": {
+    "cpu_logical": 16,
+    "cpu_physical": 10,
+    "cpu_usage": "10.5%"
+  },
+  "memory": {
+    "total": 15.75,
+    "used": 14.52,
+    "available": 1.23,
+    "percent": "92.2%"
+  },
+  "disk": [
+    {
+      "device": "C:\\",
+      "mountpoint": "C:\\",
+      "fstype": "NTFS",
+      "total": 476.25,
+      "used_percent": 47.1
+    },
+    {
+      "device": "D:\\",
+      "mountpoint": "D:\\",
+      "fstype": "CDFS",
+      "total": 0.0,
+      "used_percent": 100.0
+    }
+  ],
+  "IPv4": [
+    {
+      "interface": "以太网",
+      "ip": "169.254.82.51"
+    },
+    {
+      "interface": "本地连接* 9",
+      "ip": "169.254.53.154"
+    },
+    {
+      "interface": "本地连接* 10",
+      "ip": "169.254.213.106"
+    },
+    {
+      "interface": "VMware Network Adapter VMnet1",
+      "ip": "192.168.254.1"
+    },
+    {
+      "interface": "VMware Network Adapter VMnet8",
+      "ip": "192.168.142.1"
+    },
+    {
+      "interface": "WLAN",
+      "ip": "10.66.134.156"
+    },
+    {
+      "interface": "蓝牙网络连接",
+      "ip": "169.254.241.99"
+    }
+  ],
+  "boot_time": "2026-10-22 00:32:04",
+  "process_count": 237
+}
