@@ -6,28 +6,27 @@ from datetime import datetime
 
 log = logging.getLogger("report")  # 配置模块日志
 
+
 # 获取系统总信息
 def get_os_info():
     date = datetime.now().strftime("%Y%m%d-%H%M%S")
-    hostname = collect.get_hostname()
-    os_ = collect.get_os()
-    cpu = collect.get_cpu()
-    memory = collect.get_memory()
-    disk = collect.get_disk()
-    IPv4 = collect.get_IPv4()
-    boot_time = collect.get_boot_time()
-    process_count = collect.get_process_count()
-
-    os_info = {
-        "hostname": hostname,
-        "os": os_,
-        "cpu": cpu,
-        "memory": memory,
-        "disk": disk,
-        "IPv4": IPv4,
-        "boot_time": boot_time,
-        "process_count": process_count
+    collector = {
+        "hostname": collect.get_hostname,
+        "os": collect.get_os,
+        "cpu": collect.get_cpu,
+        "memory": collect.get_memory,
+        "disk": collect.get_disk,
+        "IPv4": collect.get_IPv4,
+        "boot_time": collect.get_boot_time,
+        "process_count": collect.get_process_count
     }
+
+    os_info = {}
+    for key, fn in collector.items():
+        try:
+            os_info[key] = fn()
+        except Exception:
+            log.exception("采集失败: %s", key)
     return os_info, date
 
 
