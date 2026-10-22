@@ -1,5 +1,4 @@
 import logging
-import collect
 import report
 
 
@@ -15,8 +14,8 @@ def main():
 
     )
 
+    report.record_for_json()
 
-    collect.get_IPv4()
 
 
 

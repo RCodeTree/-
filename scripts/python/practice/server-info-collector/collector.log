@@ -1,39 +1,16 @@
-2026-10-21 00:32:33,643 - INFO - collect - 获取内存信息成功：内存总量=>5.82GB 已使用=>3.96GB 可用=>1.86GB 使用率=>68.0%
-2026-10-21 00:59:53,811 - INFO - collect - 获取主机名成功：debian
-2026-10-21 01:00:15,602 - INFO - collect - 获取主机名成功：debian
-2026-10-21 01:11:53,275 - INFO - collect - 获取成功磁盘 /dev/sda1 信息：磁盘=>/dev/sda1 挂载点=>/ 格式化类型=>ext4 总量=>27.7 使用率=>37.6%
-2026-10-21 01:12:29,830 - INFO - collect - 获取成功磁盘 /dev/sda1 信息：磁盘=>/dev/sda1 挂载点=>/ 格式化类型=>ext4 总量=>27.7GB 使用率=>37.7%
-2026-10-21 01:12:43,088 - INFO - collect - 获取成功磁盘 sysfs 信息：磁盘=>sysfs 挂载点=>/sys 格式化类型=>sysfs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,088 - INFO - collect - 获取成功磁盘 proc 信息：磁盘=>proc 挂载点=>/proc 格式化类型=>proc 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,088 - INFO - collect - 获取成功磁盘 udev 信息：磁盘=>udev 挂载点=>/dev 格式化类型=>devtmpfs 总量=>2.88GB 使用率=>0.0%
-2026-10-21 01:12:43,088 - INFO - collect - 获取成功磁盘 devpts 信息：磁盘=>devpts 挂载点=>/dev/pts 格式化类型=>devpts 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 tmpfs 信息：磁盘=>tmpfs 挂载点=>/run 格式化类型=>tmpfs 总量=>0.58GB 使用率=>0.6%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 /dev/sda1 信息：磁盘=>/dev/sda1 挂载点=>/ 格式化类型=>ext4 总量=>27.7GB 使用率=>37.7%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 securityfs 信息：磁盘=>securityfs 挂载点=>/sys/kernel/security 格式化类型=>securityfs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 tmpfs 信息：磁盘=>tmpfs 挂载点=>/dev/shm 格式化类型=>tmpfs 总量=>2.91GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 cgroup2 信息：磁盘=>cgroup2 挂载点=>/sys/fs/cgroup 格式化类型=>cgroup2 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 pstore 信息：磁盘=>pstore 挂载点=>/sys/fs/pstore 格式化类型=>pstore 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 bpf 信息：磁盘=>bpf 挂载点=>/sys/fs/bpf 格式化类型=>bpf 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 systemd-1 信息：磁盘=>systemd-1 挂载点=>/proc/sys/fs/binfmt_misc 格式化类型=>autofs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 tmpfs 信息：磁盘=>tmpfs 挂载点=>/tmp 格式化类型=>tmpfs 总量=>2.91GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 debugfs 信息：磁盘=>debugfs 挂载点=>/sys/kernel/debug 格式化类型=>debugfs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 mqueue 信息：磁盘=>mqueue 挂载点=>/dev/mqueue 格式化类型=>mqueue 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 tmpfs 信息：磁盘=>tmpfs 挂载点=>/run/lock 格式化类型=>tmpfs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 tracefs 信息：磁盘=>tracefs 挂载点=>/sys/kernel/tracing 格式化类型=>tracefs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 hugetlbfs 信息：磁盘=>hugetlbfs 挂载点=>/dev/hugepages 格式化类型=>hugetlbfs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,089 - INFO - collect - 获取成功磁盘 tmpfs 信息：磁盘=>tmpfs 挂载点=>/run/credentials/systemd-journald.service 格式化类型=>tmpfs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,094 - INFO - collect - 获取成功磁盘 fusectl 信息：磁盘=>fusectl 挂载点=>/sys/fs/fuse/connections 格式化类型=>fusectl 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,094 - INFO - collect - 获取成功磁盘 configfs 信息：磁盘=>configfs 挂载点=>/sys/kernel/config 格式化类型=>configfs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,094 - INFO - collect - 获取成功磁盘 binfmt_misc 信息：磁盘=>binfmt_misc 挂载点=>/proc/sys/fs/binfmt_misc 格式化类型=>binfmt_misc 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,094 - INFO - collect - 获取成功磁盘 tmpfs 信息：磁盘=>tmpfs 挂载点=>/run/credentials/getty@tty1.service 格式化类型=>tmpfs 总量=>0.0GB 使用率=>0.0%
-2026-10-21 01:12:43,094 - INFO - collect - 获取成功磁盘 tmpfs 信息：磁盘=>tmpfs 挂载点=>/run/user/0 格式化类型=>tmpfs 总量=>0.58GB 使用率=>0.0%
-2026-10-21 01:21:10,230 - INFO - collect - 获取开机时间成功：2026-10-20 16:55:15
-2026-10-21 01:22:43,876 - INFO - collect - 获取当前系统进程数成功：226
-2026-10-21 01:23:12,095 - INFO - collect - 获取当前系统进程数成功：226
-2026-10-21 01:24:05,274 - INFO - collect - 获取当前系统进程数成功：225
-2026-10-21 01:24:41,928 - INFO - collect - 获取当前系统进程数成功：227
-2026-10-21 01:24:44,772 - INFO - collect - 获取当前系统进程数成功：227
-2026-10-21 01:24:45,583 - INFO - collect - 获取当前系统进程数成功：227
-2026-10-21 01:24:46,333 - INFO - collect - 获取当前系统进程数成功：227
-2026-10-22 11:25:02,120 - INFO - collect - 成功获取系统IPv4地址：网卡=>ens33 IP地址=>192.168.142.130
-2026-10-22 11:25:24,271 - INFO - collect - 成功获取系统IPv4地址：网卡=>ens33 IP地址=>192.168.142.130
+2026-10-22 21:06:05,624 - INFO - collect - 获取主机名成功：debian
+2026-10-22 21:06:05,625 - INFO - collect - 获取OS成功：Linux
+2026-10-22 21:06:06,627 - INFO - collect - 获取CPU信息成功：逻辑核心数=>8 物理核心数=>8 总利用率=>18.7%
+2026-10-22 21:06:06,628 - INFO - collect - 获取内存信息成功：内存总量=>5.82GB 已使用=>4.01GB 可用=>1.81GB 使用率=>68.9%
+2026-10-22 21:06:06,628 - INFO - collect - 获取成功磁盘 /dev/sdb1 信息：磁盘=>/dev/sdb1 挂载点=>/ 格式化类型=>ext4 总量=>27.7GB 使用率=>37.4%
+2026-10-22 21:06:06,629 - INFO - collect - 成功获取系统IPv4地址：网卡=>ens33 IP地址=>192.168.142.130
+2026-10-22 21:06:06,629 - INFO - collect - 获取开机时间成功：2026-10-22 11:02:26
+2026-10-22 21:06:06,632 - INFO - collect - 获取当前系统进程数成功：223
+2026-10-22 21:06:55,461 - INFO - collect - 获取主机名成功：debian
+2026-10-22 21:06:55,461 - INFO - collect - 获取OS成功：Linux
+2026-10-22 21:06:56,462 - INFO - collect - 获取CPU信息成功：逻辑核心数=>8 物理核心数=>8 总利用率=>5.2%
+2026-10-22 21:06:56,463 - INFO - collect - 获取内存信息成功：内存总量=>5.82GB 已使用=>3.99GB 可用=>1.83GB 使用率=>68.5%
+2026-10-22 21:06:56,463 - INFO - collect - 获取成功磁盘 /dev/sdb1 信息：磁盘=>/dev/sdb1 挂载点=>/ 格式化类型=>ext4 总量=>27.7GB 使用率=>37.4%
+2026-10-22 21:06:56,463 - INFO - collect - 成功获取系统IPv4地址：网卡=>ens33 IP地址=>192.168.142.130
+2026-10-22 21:06:56,464 - INFO - collect - 获取开机时间成功：2026-10-22 11:02:26
+2026-10-22 21:06:56,464 - INFO - collect - 获取当前系统进程数成功：225
