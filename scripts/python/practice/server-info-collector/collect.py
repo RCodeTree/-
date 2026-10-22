@@ -29,7 +29,12 @@ def get_cpu():
     cpu_usage = psutil.cpu_percent(interval=1)  # CPU 总利用率（%），采样 1 秒
     log.info("获取CPU信息成功：逻辑核心数=>%s 物理核心数=>%s 总利用率=>%s", str(cpu_physical), str(cpu_physical),
              str(cpu_usage) + "%")
-    return cpu_logical, cpu_physical, cpu_usage
+    cpu_info = {
+        "cpu_logical": cpu_logical,
+        "cpu_physical": cpu_physical,
+        "cpu_usage": str(cpu_usage) + "%"
+    }
+    return cpu_info
 
 
 # 采集内存
@@ -41,7 +46,13 @@ def get_memory():
     percent = memory.percent
     log.info("获取内存信息成功：内存总量=>%sGB 已使用=>%sGB 可用=>%sGB 使用率=>%s", str(total), str(used),
              str(available), str(percent) + "%")
-    return total, used, available, percent
+    memory_info = {
+        "total": total,
+        "used": used,
+        "available": available,
+        "percent": str(percent) + "%"
+    }
+    return memory_info
 
 
 # 采集磁盘
@@ -75,8 +86,8 @@ def get_IPv4():
     # addr.family：表示当前网络地址的协议族（Address Family）
     # socket.AF_INET：是 Python socket 模块中代表 IPv4 的常量。（如果是 IPv6，则是 socket.AF_INET6；如果是 MAC 地址，在 Linux 下通常是 psutil.AF_LINK）
     ipv4_list = []
-    for iface, addrs in psutil.net_if_addrs().items(): # 分别拿到网卡和IPv4、IPv6的IP地址列表
-        for addr in addrs: # 每一块网卡的IP地址列表
+    for iface, addrs in psutil.net_if_addrs().items():  # 分别拿到网卡和IPv4、IPv6的IP地址列表
+        for addr in addrs:  # 每一块网卡的IP地址列表
             if addr.family == socket.AF_INET and not addr.address.startswith("127."):  # 筛选 IPv4 并 筛选掉本机回环地址
                 ipv4_list.append({"interface": iface, "ip": addr.address})
                 log.info("成功获取系统IPv4地址：网卡=>%s IP地址=>%s", iface, addr.address)

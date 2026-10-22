@@ -1,12 +1,14 @@
 import logging
+import yaml
 import collect
 import json
 from datetime import datetime
 
 log = logging.getLogger("report")  # 配置模块日志
 
-
-def record_for_json():
+# 获取系统总信息
+def get_os_info():
+    date = datetime.now().strftime("%Y%m%d-%H%M%S")
     hostname = collect.get_hostname()
     os_ = collect.get_os()
     cpu = collect.get_cpu()
@@ -26,8 +28,12 @@ def record_for_json():
         "boot_time": boot_time,
         "process_count": process_count
     }
+    return os_info, date
 
-    date = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+# 序列化成json文件
+def record_for_json():
+    os_info, date = get_os_info()
     try:
         with open(f"collector-{date}.json", "w", encoding="utf-8") as json_file:
             json.dump(os_info, json_file, ensure_ascii=False, indent=2)
@@ -36,5 +42,11 @@ def record_for_json():
         return
 
 
+# 序列化成yaml文件
 def record_for_yaml():
-    return
+    os_info, date = get_os_info()
+    try:
+        with open(f"collector-{date}.yaml", "w", encoding="utf-8") as json_file:
+            yaml.safe_dump(os_info, json_file, allow_unicode=True)
+    except Exception:
+        log.exception("文件操作异常，请检查!")
