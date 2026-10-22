@@ -3,6 +3,7 @@ import os
 import psutil
 import platform
 import datetime
+import socket
 
 log = logging.getLogger("collect")  # 配置模块日志
 
@@ -71,9 +72,14 @@ def get_disk():
 
 # 采集IPv4
 def get_IPv4():
-    demo = psutil.net_if_addrs()
-    print(demo.items())
-    return
+    # addr.family：表示当前网络地址的协议族（Address Family）
+    # socket.AF_INET：是 Python socket 模块中代表 IPv4 的常量。（如果是 IPv6，则是 socket.AF_INET6；如果是 MAC 地址，在 Linux 下通常是 psutil.AF_LINK）
+    ipv4_list = []
+    for iface, addrs in psutil.net_if_addrs().items(): # 分别拿到网卡和IPv4、IPv6的IP地址列表
+        for addr in addrs: # 每一块网卡的IP地址列表
+            if addr.family == socket.AF_INET and not addr.address.startswith("127."):  # 筛选 IPv4 并 筛选掉本机回环地址
+                ipv4_list.append({"interface": iface, "ip": addr.address})
+    return ipv4_list
 
 
 # 采集开机时间

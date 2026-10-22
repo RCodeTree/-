@@ -16,7 +16,7 @@ def main():
     )
 
 
-    collect.get_process_count()
+    collect.get_IPv4()
 
 
 
