@@ -1,0 +1,32 @@
+{
+  "hostname": "debian",
+  "os": "Linux",
+  "cpu": {
+    "cpu_logical": 8,
+    "cpu_physical": 8,
+    "cpu_usage": "3.3%"
+  },
+  "memory": {
+    "total": 5.82,
+    "used": 3.86,
+    "available": 1.95,
+    "percent": "66.4%"
+  },
+  "disk": [
+    {
+      "device": "/dev/sdb1",
+      "mountpoint": "/",
+      "fstype": "ext4",
+      "total": 27.7,
+      "used_percent": 37.9
+    }
+  ],
+  "IPv4": [
+    {
+      "interface": "ens33",
+      "ip": "192.168.142.130"
+    }
+  ],
+  "boot_time": "2026-10-22 11:02:26",
+  "process_count": 225
+}

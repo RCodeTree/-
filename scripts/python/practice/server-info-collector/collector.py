@@ -15,14 +15,18 @@ def main():
 
     )
 
-    p = argparse.ArgumentParser(description="说明文字")
-    p.add_argument("path", help="位置参数：必填")  # 位置参数
-    p.add_argument("--host", default="127.0.0.1")  # 可选参数 + 默认值
-    p.add_argument("--port", type=int, default=8080)  # 类型转换
+    # 接收CLI参数
+    p = argparse.ArgumentParser(description="执行示例：python collector.py [--output json/yaml] [--out-dir dir] [-v]")
+    p.add_argument("--output", default="json")  # 可选参数 + 默认值
+    p.add_argument("--out-dir", default="./")  # 类型转换
     p.add_argument("-v", "--verbose", action="store_true")  # 布尔开关（不带值）
     args = p.parse_args()
 
-    pass
+    match args.output:
+        case "json":
+            report.record_for_json()
+        case "yaml":
+            report.record_for_yaml()
 
 
 if __name__ == "__main__":

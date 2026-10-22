@@ -1,0 +1,22 @@
+IPv4:
+- interface: ens33
+  ip: 192.168.142.130
+boot_time: '2026-10-22 11:02:26'
+cpu:
+  cpu_logical: 8
+  cpu_physical: 8
+  cpu_usage: 3.9%
+disk:
+- device: /dev/sdb1
+  fstype: ext4
+  mountpoint: /
+  total: 27.7
+  used_percent: 37.9
+hostname: debian
+memory:
+  available: 1.95
+  percent: 66.4%
+  total: 5.82
+  used: 3.86
+os: Linux
+process_count: 225

@@ -37,6 +37,7 @@ def record_for_json():
     try:
         with open(f"collector-{date}.json", "w", encoding="utf-8") as json_file:
             json.dump(os_info, json_file, ensure_ascii=False, indent=2)
+        log.info(f"已经记录到collector-{date}.json中")
     except Exception:
         log.exception("文件操作异常，请检查!")
         return
@@ -48,5 +49,6 @@ def record_for_yaml():
     try:
         with open(f"collector-{date}.yaml", "w", encoding="utf-8") as json_file:
             yaml.safe_dump(os_info, json_file, allow_unicode=True)
+        log.info(f"已经记录到collector-{date}.yaml中")
     except Exception:
         log.exception("文件操作异常，请检查!")
