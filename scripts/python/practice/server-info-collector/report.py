@@ -1,3 +1,5 @@
 import logging
 
-log = logging.getLogger("__name__") # 配置模块日志
+log = logging.getLogger("report") # 配置模块日志
+
+

@@ -79,6 +79,7 @@ def get_IPv4():
         for addr in addrs: # 每一块网卡的IP地址列表
             if addr.family == socket.AF_INET and not addr.address.startswith("127."):  # 筛选 IPv4 并 筛选掉本机回环地址
                 ipv4_list.append({"interface": iface, "ip": addr.address})
+                log.info("成功获取系统IPv4地址：网卡=>%s IP地址=>%s", iface, addr.address)
     return ipv4_list
 
 
@@ -87,7 +88,7 @@ def get_boot_time():
     boot_ts = psutil.boot_time()  # 获取开机时间的时间戳
     boot_time = datetime.datetime.fromtimestamp(boot_ts).strftime("%Y-%m-%d %H:%M:%S")  # 通过时间戳计算当下时间
     log.info("获取开机时间成功：%s", str(boot_time))
-    return
+    return boot_time
 
 
 # 采集进程数
@@ -96,4 +97,4 @@ def get_process_count():
     # 或者通过生成器统计（适合同时需要读取进程属性时）：
     # process_count = sum(1 for _ in psutil.process_iter())
     log.info("获取当前系统进程数成功：%s", str(process_count))
-    return
+    return process_count
