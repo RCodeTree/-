@@ -17,6 +17,12 @@ import requests
 # timeout=(3.05, 10)       # (连接超时, 读超时) 分离
 # 指数退避：每次等待 backoff * 2**(attempt-1) 秒，避免重试风暴
 
+# ① 不设 timeout，对方一旦挂死（连接/读不返回），脚本永久卡住，是运维事故低级雷。
+# ② resp.json() = 把响应体解析成 dict；json=dict = requests 帮你把请求体序列化并自动设 Content-Type。
+# ③ raise_for_status()：状态码为 4xx/5xx 时抛 HTTPError，成功则静默，用于“显式失败”。
+# ④ 硬编码会被提交进 git/泄露、换环境要改代码；应走环境变量或密钥管理。
+
+
 # GET 实例
 # r = requests.get("https://httpbin.org/get", params={"per_page": 1}, timeout=5) # 发送 GET 请求 返回响应对象
 # print(r.json())
