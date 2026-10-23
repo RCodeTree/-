@@ -6,14 +6,14 @@ sem = asyncio.Semaphore(2)
 
 
 async def gather_request(session, url):
-    start_time = time.perf_counter()
     async with sem:
-        try:
-            async with session.get(url, timeout=5) as response:
-                end_time = time.perf_counter()
-                return url, response.status, end_time - start_time
-        except Exception as e:  # 每一个协程都可能发生的异常，所以每个协程都 try except，从而达到故障隔离
-            return url, None, f"{type(e).__name__}"
+        start_time = time.perf_counter()
+    try:
+        async with session.get(url, timeout=5) as response:
+            end_time = time.perf_counter()
+            return url, response.status, end_time - start_time
+    except Exception as e:  # 每一个协程都可能发生的异常，所以每个协程都 try except，从而达到故障隔离
+        return url, None, f"{type(e).__name__}"
 
 
 async def main():
