@@ -11,3 +11,6 @@
 .idea
 *.iml
 .codebuddy
+scripts/python/practice/server-info-collector/*.json
+scripts/python/practice/server-info-collector/*.yaml
+scripts/python/practice/server-info-collector/*.log
