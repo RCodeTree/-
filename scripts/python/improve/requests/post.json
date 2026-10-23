@@ -1,0 +1,21 @@
+{
+  "args": {},
+  "data": "{'hostname': 'web-01', 'cpu': 42.5}",
+  "files": {},
+  "form": {},
+  "headers": {
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, zstd",
+    "Content-Length": "35",
+    "Content-Type": "application/json",
+    "Host": "httpbin.org",
+    "User-Agent": "python-requests/2.34.2",
+    "X-Amzn-Trace-Id": "Root=1-6adb0f7e-02b56df146fcc18c2a869592"
+  },
+  "json": {
+    "cpu": 42.5,
+    "hostname": "web-01"
+  },
+  "origin": "18.142.104.98",
+  "url": "https://httpbin.org/post"
+}

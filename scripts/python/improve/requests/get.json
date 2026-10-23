@@ -1,0 +1,14 @@
+{
+  "args": {
+    "per_page": "1"
+  },
+  "headers": {
+    "Accept": "*/*",
+    "Accept-Encoding": "gzip, deflate, zstd",
+    "Host": "httpbin.org",
+    "User-Agent": "python-requests/2.34.2",
+    "X-Amzn-Trace-Id": "Root=1-6adb0f7d-07e1f74c7abdeb150df2cb16"
+  },
+  "origin": "18.142.104.98",
+  "url": "https://httpbin.org/get?per_page=1"
+}
