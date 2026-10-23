@@ -11,6 +11,8 @@
 .idea
 *.iml
 .codebuddy
-scripts/python/practice/server-info-collector/*.json
-scripts/python/practice/server-info-collector/*.yaml
-scripts/python/practice/server-info-collector/*.log
+# server-info-collector 目录下忽略 JSON/YAML/日志文件
+/scripts/python/practice/server-info-collector/*.json
+/scripts/python/practice/server-info-collector/*.yaml
+/scripts/python/practice/server-info-collector/*.yml
+/scripts/python/practice/server-info-collector/*.log
