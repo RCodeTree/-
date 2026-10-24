@@ -1,11 +1,11 @@
-import asyncio, logging, argparse
+import asyncio
+import argparse
 import json
-import pathlib
-from os import mkdir
+import logging
 from pathlib import Path
+from datetime import datetime
 
 import probe
-from datetime import datetime
 
 
 async def main():
@@ -21,6 +21,17 @@ async def main():
     p.add_argument("-v", "--verbose", action="store_true")  # 布尔开关（不带值）
     args = p.parse_args()
 
+    # 配置日志
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+        handlers=[
+            logging.FileHandler('probe.log', encoding="utf-8"),
+            logging.StreamHandler()
+        ]
+    )
+    log = logging.getLogger("main")
+
     # 解析host
     hosts = []
     if args.hosts:  # 直接传入的方式
@@ -32,22 +43,21 @@ async def main():
                 if host and not host.startswith("#"):
                     hosts.append(host)
 
+    if not hosts:
+        p.error("请通过 --hosts 或 --hosts-file 提供主机列表")
+
+    log.info("待探测主机 %d 台: %s (port=%s, concurrency=%s, timeout=%ss)",
+             len(hosts), hosts, args.port, args.concurrency, args.timeout)
+
     # 配置并发数量
     sem = asyncio.Semaphore(args.concurrency)
 
-    # 配置日志
-    logging.basicConfig(
-        level=logging.DEBUG if args.verbose else logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
-        handlers=[
-            logging.FileHandler('probe.log', encoding="utf-8"),
-            logging.StreamHandler()
-        ]
-    )
-
     # 探测
-    results = []
     results = await asyncio.gather(*(probe.prob_all(host, args.port, args.timeout, sem) for host in hosts))
+
+    alive = [r for r in results if r["alive"]]
+    down = [r for r in results if not r["alive"]]
+    log.info("探测完成: 在线 %d / 离线 %d / 共 %d", len(alive), len(down), len(results))
 
     # 落盘
     date = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -55,7 +65,7 @@ async def main():
     dir_path.mkdir(exist_ok=True, parents=True)
     final_path = dir_path / f"prob-{date}.json"
     final_path.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
-
+    log.info("结果已落盘: %s", final_path)
 
 
 if __name__ == "__main__":
