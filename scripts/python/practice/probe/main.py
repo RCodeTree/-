@@ -1,5 +1,11 @@
 import asyncio, logging, argparse
+import json
+import pathlib
+from os import mkdir
+from pathlib import Path
+
 import probe
+from datetime import datetime
 
 
 async def main():
@@ -12,7 +18,6 @@ async def main():
     p.add_argument("--port", type=int, help="主机端口", required=True)
     p.add_argument("--concurrency", type=int, default=3, help="并发数量")
     p.add_argument("--timeout", default=3.0, type=float, help="超时时长")
-    p.add_argument("--out-dir", default="./", help="探活数据落盘目录")
     p.add_argument("-v", "--verbose", action="store_true")  # 布尔开关（不带值）
     args = p.parse_args()
 
@@ -44,7 +49,13 @@ async def main():
     results = []
     results = await asyncio.gather(*(probe.prob_all(host, args.port, args.timeout, sem) for host in hosts))
 
-    print(results)
+    # 落盘
+    date = datetime.now().strftime("%Y%m%d-%H%M%S")
+    dir_path = Path("report")
+    dir_path.mkdir(exist_ok=True, parents=True)
+    final_path = dir_path / f"prob-{date}.json"
+    final_path.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+
 
 
 if __name__ == "__main__":
