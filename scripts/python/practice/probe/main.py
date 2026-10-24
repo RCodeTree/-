@@ -40,9 +40,12 @@ async def main():
     )
 
     # 探测
+    results = []
     async with sem:
         async with aiohttp.ClientSession() as session:
-            await probe.prob_tcp(session, hosts, args.port)
+            results = await asyncio.gather(*(probe.prob_tcp(session, host, args.port) for host in hosts))
+
+    print(results)
 
 
 if __name__ == "__main__":
