@@ -1,16 +1,25 @@
+import asyncio
+
 import aiohttp
 
 
 # 探测TCP
-async def prob_tcp(session, host, port):
-    result = {
-        "host": host,
-        "port": port,
-        "alive": True
-    }
+async def prob_tcp(host: str, port: int, timeout: float = 3.0) -> dict:
     try:
-        async with session.get(f"{host}:{port}", timeout=aiohttp.ClientTimeout(total=3)):
-            return result
-    except Exception:
-        result["alive"] = False
-        return result
+        reader, writer = await asyncio.wait_for(
+            asyncio.open_connection(host=host, port=port), timeout=timeout
+        )
+        writer.close()
+        await writer.wait_closed()
+        return {
+            "host": host,
+            "port": port,
+            "alive": True
+        }
+    except Exception as e:
+        return {
+            "host": host,
+            "port": port,
+            "alive": False,
+            "error": type(e).__name__
+        }
