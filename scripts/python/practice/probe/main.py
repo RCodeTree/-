@@ -1,4 +1,5 @@
-import asyncio, logging, argparse
+import asyncio, logging, argparse, aiohttp
+import probe
 
 
 async def main():
@@ -25,6 +26,9 @@ async def main():
                 if host and not host.startswith("#"):
                     hosts.append(host)
 
+    # 配置并发数量
+    sem = asyncio.Semaphore(args.concurrency)
+
     # 配置日志
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
@@ -35,8 +39,10 @@ async def main():
         ]
     )
 
-
-
+    # 探测
+    async with sem:
+        async with aiohttp.ClientSession() as session:
+            await probe.prob_tcp(session, hosts, args.port)
 
 
 if __name__ == "__main__":
