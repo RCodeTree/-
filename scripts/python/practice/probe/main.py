@@ -6,6 +6,7 @@ from pathlib import Path
 from datetime import datetime
 
 import probe
+import upload
 
 
 async def main():
@@ -53,6 +54,7 @@ async def main():
     sem = asyncio.Semaphore(args.concurrency)
 
     # 探测
+    results = []
     results = await asyncio.gather(*(probe.prob_all(host, args.port, args.timeout, sem) for host in hosts))
 
     alive = [r for r in results if r["alive"]]
@@ -66,6 +68,9 @@ async def main():
     final_path = dir_path / f"prob-{date}.json"
     final_path.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
     log.info("结果已落盘: %s", final_path)
+
+    # 上报（尽力而为，失败不影响已完成的探活与落盘）
+    upload.upload(results)
 
 
 if __name__ == "__main__":
