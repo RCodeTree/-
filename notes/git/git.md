@@ -63,4 +63,46 @@
 ## 七、 补充：Rebase 后悔药 💊
 如果 rebase 搞砸了，旧的记录其实没被物理删除。使用 `git reflog` 查看你的历史操作记录，找到旧提交的 Hash 值，然后用 `git reset --hard <旧Hash>` 就能强行拉回原来的状态。
 
+---
+
+## 八、 实战经验：未提交改动「不属于任何分支」（踩坑总结）
+
+### 1. 现象（真实案例）
+在 `master` 上修改了文件并 `merge` 了一次 `test-branch`，随后又 `vim` 改动但**没 commit**。发现切到 `test-branch` 后，这个改动「也出现了」——以为内容混进了 test 分支。
+
+`git log` 长这样：
+```text
+bafead11  (HEAD -> master, test-branch)   test-branch 的提交
+60ef376                                    第一次提交
+```
+
+### 2. 根因：分支是指针，工作区只有一个
+
+*   **一个仓库只有一个工作目录**。分支只是指向某个 commit 的轻量级指针（呼应第五节）。
+*   **未提交的改动只存在于「工作区」**，它不属于 `master`、也不属于 `test-branch`——它只是**漂浮在当前 commit 之上的一层脏数据**。
+*   所以切到 `test-branch` 时，这个未提交改动会**跟着过去**（两分支同 commit、无冲突），看起来像「另一分支也有」——其实那不是分支的内容，是工作区的未提交改动。
+*   **分支之间真正不同的，只有「已提交」的东西**；没提交的，永远是公共的。
+
+### 3. fast-forward 合并（为什么两分支重合）
+
+当 `master` 落后于 `test-branch` 时，`git merge test-branch` 会**快进（fast-forward）**：不产生 merge commit，直接把 `master` 指针拉到 `test-branch` 同一点。于是两者指向同一个 commit，暂时**完全重合**。
+
+### 4. 未提交改动的处理（决定它「归属」哪条分支）
+
+| 意图 | 操作 |
+| :--- | :--- |
+| 改动留当前分支（如 master） | `git add 文件 && git commit -m "..."`（分支指针前进，另一分支停在原处） |
+| 不想要这个改动 | `git restore 文件` |
+| 想放到另一条分支 | `git stash` → `git switch 目标分支` → `git stash pop` → `git commit` |
+
+> 提交之后，分支才会真正分叉/前进；在那之前，所有未提交改动都是「无主」的。
+
+### 5. 避坑口诀
+
+> **📌 切分支前先 `git status`，确认没有未提交改动。**
+> 带脏改动切分支，改动会跟着过去；万一在错误的分支上 `commit`，就会造成「分支没合并、内容混了」的麻烦。
+
+*   `git status`：确认 `modified:` 是未提交还是已提交。
+*   `git log --oneline --graph --all --decorate`：用图看清两条分支是否重合在一点。
+
 --- 
