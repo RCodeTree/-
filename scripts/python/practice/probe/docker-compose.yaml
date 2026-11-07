@@ -1,0 +1,21 @@
+services:
+  mock_server:
+    build: .
+    container_name: mock_server
+    entrypoint: ["python3", "mock_server.py"]
+    command: ["8000"]
+    ports:
+      - "8000:8000"
+
+  probe:
+    build: .
+    container_name: probe
+    command: ["--hosts-file", "hosts.txt", "--port", "22"]
+    environment:
+      - PROBE_API_URL=http://mock_server:8000/upload
+    volumes:
+      - ./hosts.txt:/app/hosts.txt:ro
+      - ./report:/app/report
+    depends_on:
+      - mock_server
+
