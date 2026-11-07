@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+# 把项目根目录加入 sys.path，让 tests/ 里能 import probe
+pythonpath = ["."]
+# 指定测试目录
+testpaths = ["tests"]
