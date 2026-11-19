@@ -1,0 +1,11 @@
+[project]
+name = "fastapi-structure"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.163.1",
+    "pymysql>=1.2.4",
+    "python-multipart>=0.0.34",
+    "sqlalchemy>=2.1.9",
+    "uvicorn>=0.54.0",
+]
